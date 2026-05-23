@@ -397,8 +397,8 @@ footer a:hover { color: #fff; }
 }
 
 /* ── ARCH PIPELINE LAYOUT (flex 2-row, 3+2) ─────── */
-.arch-2row-layout { display: flex; flex-direction: column; }
-.arch-hrow { display: flex; align-items: stretch; }
+.arch-2row-layout { display: flex; flex-direction: column; gap: 14px; }
+.arch-hrow { display: flex; align-items: stretch; gap: 14px; }
 .arch-hrow .arch-node { flex: 1; }
 .arch-hrow .arch-hsep { width: 28px; flex-shrink: 0; }
 .arch-hrow-center { justify-content: center; }
@@ -413,7 +413,7 @@ footer a:hover { color: #fff; }
   border-left: 7px solid var(--border);
 }
 
-/* L-connector: from Fase 3 (right) down-and-left to Fase 4 (center) */
+/* L-connector: from right node down-and-left */
 .arch-conn-row { position: relative; height: 40px; }
 .arch-l-elbow {
   position: absolute;
@@ -430,6 +430,10 @@ footer a:hover { color: #fff; }
   border-left: 5px solid transparent; border-right: 5px solid transparent;
   border-top: 7px solid var(--border);
 }
+.arch-l-elbow.no-tip::after { display: none; }
+
+/* Left-aligned second row: nodes same width as 3-column row */
+.arch-hrow-left .arch-node { flex: 0 0 calc((100% - 56px) / 3); }
 
 /* ── SCREENSHOT PLACEHOLDER ─────────────────────── */
 .img-ph {

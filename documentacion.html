@@ -52,78 +52,64 @@
 
 <section class="bg-white">
   <div class="wrap">
-    <div class="arch-wrap" style="overflow-x:auto;">
-      <!-- Diagrama de flujo horizontal en dos filas (CSS Grid 5 columnas) -->
-      <div style="display:grid;grid-template-columns:1fr 36px 1fr 36px 1fr;min-width:600px;">
+    <div class="arch-wrap">
+      <div class="arch-2row-layout">
 
-        <!-- Fila 1: Datos → pipeline.py → /data/*.parquet -->
-        <div class="arch-node" style="grid-row:1;grid-column:1;">
-          <div class="arch-node-tag">Fuente de datos</div>
-          <div class="arch-node-name">Datos de origen</div>
-          <ul class="arch-node-list">
-            <li>Snowflake (producción) / CSV muestra local</li>
-            <li>FullStory: 700K+ eventos de comportamiento en campo</li>
-            <li>140 técnicos, 54 clientes (muestra de validación académica)</li>
-          </ul>
-        </div>
-        <div style="grid-row:1;grid-column:2;display:flex;align-items:center;justify-content:center;padding-top:32px;">
-          <div style="height:2px;flex:1;background:var(--border);"></div>
-          <div style="width:0;height:0;flex-shrink:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid var(--border);"></div>
-        </div>
-        <div class="arch-node hl" style="grid-row:1;grid-column:3;">
-          <div class="arch-node-tag">Procesamiento central</div>
-          <div class="arch-node-name">pipeline.py</div>
-          <ul class="arch-node-list">
-            <li><strong>ETL:</strong> limpieza y unificación de tenants, técnicos y eventos</li>
-            <li><strong>Features:</strong> 57 variables por técnico (ventana de 14 días)</li>
-            <li><strong>Scoring:</strong> Random Forest predice P(retención) [0,1] por técnico</li>
-            <li><strong>SHAP:</strong> top-3 factores explicativos individuales por técnico</li>
-            <li><strong>Agregación:</strong> score medio y segmento por cliente</li>
-          </ul>
-          <span class="arch-node-time">~21 seg (muestra n=140) &nbsp;&middot;&nbsp; 8-14 min (producción ~5K técnicos)</span>
-        </div>
-        <div style="grid-row:1;grid-column:4;display:flex;align-items:center;justify-content:center;padding-top:32px;">
-          <div style="height:2px;flex:1;background:var(--border);"></div>
-          <div style="width:0;height:0;flex-shrink:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid var(--border);"></div>
-        </div>
-        <div class="arch-node" style="grid-row:1;grid-column:5;">
-          <div class="arch-node-tag">Almacenamiento intermedio</div>
-          <div class="arch-node-name">/data/*.parquet</div>
-          <ul class="arch-node-list">
-            <li><code>analytical_dataset</code> — features + score + nivel de riesgo por técnico</li>
-            <li><code>shap_values</code> — top-3 factores explicativos por técnico</li>
-            <li><code>feature_importance</code> — ranking global de variables del modelo</li>
-            <li><code>tenant_scores</code> — score agregado y segmento por cliente</li>
-          </ul>
+        <!-- Fila 1: Fuente de datos · Procesamiento central · Almacenamiento intermedio -->
+        <div class="arch-hrow">
+          <div class="arch-node">
+            <div class="arch-node-tag">1. Fuente de datos</div>
+            <div class="arch-node-name">Datos de origen</div>
+            <ul class="arch-node-list">
+              <li>Snowflake (producción) / CSV muestra local</li>
+              <li>FullStory: 700K+ eventos de comportamiento en campo</li>
+              <li>140 técnicos, 54 clientes (muestra de validación académica)</li>
+            </ul>
+          </div>
+          <div class="arch-node hl">
+            <div class="arch-node-tag">2. Procesamiento central</div>
+            <div class="arch-node-name">pipeline.py</div>
+            <ul class="arch-node-list">
+              <li><strong>ETL:</strong> limpieza y unificación de tenants, técnicos y eventos</li>
+              <li><strong>Features:</strong> 57 variables por técnico (ventana de 14 días)</li>
+              <li><strong>Scoring:</strong> Random Forest predice P(retención) [0,1] por técnico</li>
+              <li><strong>SHAP:</strong> top-3 factores explicativos individuales por técnico</li>
+              <li><strong>Agregación:</strong> score medio y segmento por cliente</li>
+            </ul>
+            <span class="arch-node-time">~21 seg (muestra n=140) &nbsp;&middot;&nbsp; 8-14 min (producción ~5K técnicos)</span>
+          </div>
+          <div class="arch-node">
+            <div class="arch-node-tag">3. Almacenamiento intermedio</div>
+            <div class="arch-node-name">/data/*.parquet</div>
+            <ul class="arch-node-list">
+              <li><code>analytical_dataset</code> — features + score + nivel de riesgo por técnico</li>
+              <li><code>shap_values</code> — top-3 factores explicativos por técnico</li>
+              <li><code>feature_importance</code> — ranking global de variables del modelo</li>
+              <li><code>tenant_scores</code> — score agregado y segmento por cliente</li>
+            </ul>
+          </div>
         </div>
 
-        <!-- Conector en L: baja desde /data/*.parquet (col 5) y apunta hacia app.py (col 3) -->
-        <div style="grid-row:2;grid-column:3/6;height:28px;border-right:2px solid var(--border);border-bottom:2px solid var(--border);position:relative;">
-          <div style="position:absolute;left:0;bottom:-8px;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--border);"></div>
-        </div>
-
-        <!-- Fila 2: app.py → Tablero (empieza en columna 3, bajo pipeline.py) -->
-        <div class="arch-node hl" style="grid-row:3;grid-column:3;">
-          <div class="arch-node-tag">Aplicación interactiva</div>
-          <div class="arch-node-name">app.py, Streamlit</div>
-          <ul class="arch-node-list">
-            <li><strong>V1 Factores:</strong> análisis descriptivo del comportamiento en primeros 14 días</li>
-            <li><strong>V2 Riesgo:</strong> score predictivo por cliente y desglose SHAP por técnico</li>
-            <li><strong>V3 Guía:</strong> segmentación prescriptiva con acciones diferenciadas por segmento</li>
-          </ul>
-        </div>
-        <div style="grid-row:3;grid-column:4;display:flex;align-items:center;justify-content:center;padding-top:32px;">
-          <div style="height:2px;flex:1;background:var(--border);"></div>
-          <div style="width:0;height:0;flex-shrink:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid var(--border);"></div>
-        </div>
-        <div class="arch-node" style="grid-row:3;grid-column:5;">
-          <div class="arch-node-tag">Usuario final</div>
-          <div class="arch-node-name">Tablero en el navegador</div>
-          <ul class="arch-node-list">
-            <li>Streamlit Community Cloud — acceso sin instalación local</li>
-            <li>Product Manager y stakeholders de ServiceTitan</li>
-            <li>Ruta a producción: migración a Tableau + Snowflake</li>
-          </ul>
+        <!-- Fila 2: Aplicación interactiva · Usuario final (alineadas a la izquierda) -->
+        <div class="arch-hrow arch-hrow-left">
+          <div class="arch-node hl">
+            <div class="arch-node-tag">4. Aplicación interactiva</div>
+            <div class="arch-node-name">app.py, Streamlit</div>
+            <ul class="arch-node-list">
+              <li><strong>V1 Factores:</strong> análisis descriptivo del comportamiento en primeros 14 días</li>
+              <li><strong>V2 Riesgo:</strong> score predictivo por cliente y desglose SHAP por técnico</li>
+              <li><strong>V3 Guía:</strong> segmentación prescriptiva con acciones diferenciadas por segmento</li>
+            </ul>
+          </div>
+          <div class="arch-node">
+            <div class="arch-node-tag">5. Usuario final</div>
+            <div class="arch-node-name">Tablero en el navegador</div>
+            <ul class="arch-node-list">
+              <li>Streamlit Community Cloud — acceso sin instalación local</li>
+              <li>Product Manager y stakeholders de ServiceTitan</li>
+              <li>Ruta a producción: migración a Tableau + Snowflake</li>
+            </ul>
+          </div>
         </div>
 
       </div>
