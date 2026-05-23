@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tabla de Requerimientos - FMA Adoption Intelligence</title>
+<style>
+
+/* ─── PRINT ─────────────────────────────────────────────────── */
+@page {
+  size: A4 landscape;
+  margin: 11mm 16mm;
+}
+@media print {
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .no-print { display: none; }
+}
+
+/* ─── RESET ──────────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ─── BASE ───────────────────────────────────────────────────── */
+body {
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #111827;
+  background: #ffffff;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 36px 48px 48px;
+}
+
+/* ─── DOCUMENT HEADER ────────────────────────────────────────── */
+.doc-header {
+  padding-bottom: 16px;
+  border-bottom: 2px solid #111827;
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.doc-header-left h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.3px;
+}
+.doc-header-left p {
+  font-size: 11.5px;
+  color: #6B7280;
+  margin-top: 3px;
+}
+.doc-header-right {
+  text-align: right;
+  font-size: 11px;
+  color: #6B7280;
+  line-height: 1.7;
+}
+
+/* ─── SECTION HEADING ────────────────────────────────────────── */
+.section-heading {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #1E3A5F;
+  border-left: 3px solid #1E3A5F;
+  padding-left: 8px;
+  margin: 26px 0 10px;
+}
+
+/* ─── TABLE ──────────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 7.2pt;
+  margin-bottom: 4px;
+}
+
+thead th {
+  background: #1E3A5F;
+  color: #F9FAFB;
+  font-weight: 600;
+  font-size: 6.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 6px 7px;
+  text-align: left;
+  border-right: 1px solid rgba(255,255,255,0.1);
+  vertical-align: middle;
+}
+thead th:last-child { border-right: none; }
+
+tbody tr:nth-child(odd)  td { background: #F9FAFB; }
+tbody tr:nth-child(even) td { background: #ffffff; }
+
+td {
+  padding: 5px 7px;
+  border-right: 1px solid #E5E7EB;
+  border-bottom: 1px solid #E5E7EB;
+  vertical-align: top;
+  color: #111827;
+  line-height: 1.42;
+}
+td:last-child { border-right: none; }
+td:first-child { font-weight: 700; color: #1E3A5F; }
+
+/* ─── COLUMN WIDTHS ──────────────────────────────────────────── */
+.c-id     { width: 3.5%; }
+.c-req    { width: 12%; }
+.c-prueba { width: 11.5%; }
+.c-crit   { width: 8%; }
+.c-est    { width: 5%; text-align: center; }
+.c-evid   { width: 21%; }
+.c-ajuste { width: 10%; }
+.c-just   { width: 29%; }
+
+/* ─── STATUS BADGES ──────────────────────────────────────────── */
+.si {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9px;
+  font-size: 6.5pt;
+  font-weight: 700;
+  background: #F0FDF4;
+  color: #14532D;
+  border: 1px solid #A7F3D0;
+  white-space: nowrap;
+}
+.parcial {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 9px;
+  font-size: 6.5pt;
+  font-weight: 700;
+  background: #FFFBEB;
+  color: #78350F;
+  border: 1px solid #FDE68A;
+  white-space: nowrap;
+}
+.no {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9px;
+  font-size: 6.5pt;
+  font-weight: 700;
+  background: #FEF2F2;
+  color: #7F1D1D;
+  border: 1px solid #FECACA;
+  white-space: nowrap;
+}
+
+/* ─── INLINE CODE ────────────────────────────────────────────── */
+code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 6.2pt;
+  background: #F3F4F6;
+  border: 1px solid #D1D5DB;
+  border-radius: 2px;
+  padding: 0 3px;
+  color: #374151;
+}
+
+/* ─── EMPHASIS ───────────────────────────────────────────────── */
+.em  { font-weight: 700; color: #111827; }
+.dim { color: #6B7280; font-style: italic; font-size: 6.5pt; }
+
+/* ─── SUMMARY ────────────────────────────────────────────────── */
+.summary {
+  margin-top: 28px;
+  border: 1px solid #E5E7EB;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.summary-header {
+  background: #1E3A5F;
+  color: #F9FAFB;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 7px 14px;
+}
+.summary-body {
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: start;
+}
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.summary-table th {
+  background: #F3F4F6;
+  color: #374151;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-bottom: 1px solid #D1D5DB;
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.summary-table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid #F3F4F6;
+  font-size: 11px;
+  background: white;
+  color: #111827;
+  border-right: none;
+}
+.summary-note {
+  font-size: 10.5px;
+  color: #6B7280;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+.stat-row {
+  display: flex;
+  gap: 10px;
+}
+.stat-box {
+  text-align: center;
+  padding: 10px 16px;
+  border: 1px solid #E5E7EB;
+  border-radius: 4px;
+  min-width: 72px;
+}
+.stat-box .n {
+  font-size: 28px;
+  font-weight: 800;
+  display: block;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.stat-box .l {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #6B7280;
+}
+.stat-si    .n { color: #14532D; }
+.stat-par   .n { color: #78350F; }
+.stat-no    .n { color: #7F1D1D; }
+
+/* ─── FOOTNOTE ───────────────────────────────────────────────── */
+.footnote {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border: 1px solid #E5E7EB;
+  border-left: 3px solid #6B7280;
+  border-radius: 2px;
+  font-size: 10px;
+  color: #6B7280;
+  line-height: 1.55;
+}
+.footnote strong { color: #374151; }
+
+/* ─── PAGE BREAK ─────────────────────────────────────────────── */
+.pb { page-break-before: always; }
+
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- HEADER                                                        -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="doc-header">
+  <div class="doc-header-left">
+    <h1>Tabla de Requerimientos</h1>
+    <p>Universidad de los Andes &nbsp;·&nbsp; Maestría en Inteligencia Analítica de Datos &nbsp;·&nbsp; FMA Adoption Intelligence</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- RESUMEN                                                       -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="summary">
+  <div class="summary-header">Resumen de cumplimiento</div>
+  <div class="summary-body">
+    <div>
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Estado</th>
+            <th>Cantidad</th>
+            <th>Requerimientos</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="si">Sí — Cumple</span></td>
+            <td style="font-weight:700; text-align:center;">17</td>
+            <td>R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R12, R13, R14, R16, R17, R20, R21</td>
+          </tr>
+          <tr>
+            <td><span class="parcial">Parcial</span></td>
+            <td style="font-weight:700; text-align:center;">3</td>
+            <td>R15, R18, R19</td>
+          </tr>
+          <tr>
+            <td><span class="no">No cumple</span></td>
+            <td style="font-weight:700; text-align:center;">1</td>
+            <td>R11</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="summary-note">De los 21 requerimientos evaluados, 17 se cumplen plenamente, 3 se cumplen de forma parcial con justificación documentada y acciones correctivas propuestas, y 1 no se cumple por una limitación estructural del tamaño de la muestra de entrenamiento (n=84 técnicos, EPV=0.9) que será resuelta en la iteración de producción con el dataset completo de ServiceTitan (Q3 2026).<br><br><em>Nota: R14 se desglosa en tres sub-requerimientos (R14.1, R14.2, R14.3) en el cuerpo de la rúbrica; en el resumen se consolida como un único requerimiento (R14) para mantener la numeración original de 21 ítems definida en la Entrega 1.</em></p>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box stat-si">
+        <span class="n">17</span>
+        <span class="l">Cumple</span>
+      </div>
+      <div class="stat-box stat-par">
+        <span class="n">3</span>
+        <span class="l">Parcial</span>
+      </div>
+      <div class="stat-box stat-no">
+        <span class="n">1</span>
+        <span class="l">No cumple</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- NEGOCIO                                                       -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="section-heading">Aspecto: Negocio</div>
+
+<table>
+  <thead>
+    <tr>
+      <th class="c-id">ID</th>
+      <th class="c-req">Requerimiento</th>
+      <th class="c-prueba">Prueba realizada</th>
+      <th class="c-crit">Criterio / Métrica</th>
+      <th class="c-est">Estado</th>
+      <th class="c-evid">Evidencia de cumplimiento</th>
+      <th class="c-ajuste">Ajustes implementados</th>
+      <th class="c-just">Justificación y acción correctiva</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="c-id">R1</td>
+      <td class="c-req">Al menos el 70% de los clientes con migración estancada son correctamente identificados como riesgo alto o crítico</td>
+      <td class="c-prueba">Cruce del score agregado de retención por cliente con el nivel de riesgo asignado, filtrado a clientes con retención real menor al 50%</td>
+      <td class="c-crit">70% de clientes estancados en nivel crítico o alto</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid"><span class="em">86% de los clientes con retención real menor al 50% están clasificados como riesgo Alto o Crítico.</span> Valor obtenido del KPI "Estancados en riesgo alto/crítico" visible en Vista 2 del tablero (captura 2026-05-20). Supera el umbral del 70% requerido en 16 puntos porcentuales.</td>
+      <td class="c-ajuste">Se agregó un quinto KPI en Vista 2 exclusivamente para este requerimiento, etiquetado "Estancados en riesgo alto/crítico (R1)". La definición operacional usa <code>retention_real &lt; 0.5</code> como proxy de "migración estancada".</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R3</td>
+      <td class="c-req">La diferencia en tasa de retención entre el cuartil de menor riesgo (Q4) y el de mayor riesgo (Q1) debe ser de al menos 10 puntos porcentuales</td>
+      <td class="c-prueba">Cálculo de tasa de retención real por cuartil del score agregado de cliente sobre el conjunto de validación (n=54 clientes)</td>
+      <td class="c-crit">Diferencia Q4 - Q1 mayor o igual a 10 pp</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid"><span class="em">Q1: 0.0% de retención. Q4: 78.6% de retención. Diferencia: 78.6 pp.</span> Fuente: Tabla 18 del Reporte E2.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R4</td>
+      <td class="c-req">El sistema debe proveer recomendaciones accionables diferenciadas por segmento de cliente para el equipo de Customer Success</td>
+      <td class="c-prueba">Revisión del contenido de Vista 3: verificación de segmentos, recomendaciones y respaldo evidencial</td>
+      <td class="c-crit">Al menos 3 segmentos con recomendaciones diferenciadas y respaldo de datos</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid">Vista 3 implementa 4 segmentos basados en el porcentaje de técnicos en FMA: (1) Migrar con prioridad (&lt;20%), (2) Activar funcionalidades clave (20–39%), (3) Monitorear adopción (40–69%), (4) En buen camino (70% o más). Cada segmento tiene tarjeta de recomendación con acciones numeradas y pie de respaldo evidencial.</td>
+      <td class="c-ajuste">El diseño de E1 definía 3 segmentos. Se amplió a 4 para mayor granularidad operativa.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- DESEMPEÑO DEL MODELO                                          -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="section-heading">Aspecto: Desempeño del Modelo</div>
+
+<table>
+  <thead>
+    <tr>
+      <th class="c-id">ID</th>
+      <th class="c-req">Requerimiento</th>
+      <th class="c-prueba">Prueba realizada</th>
+      <th class="c-crit">Criterio / Métrica</th>
+      <th class="c-est">Estado</th>
+      <th class="c-evid">Evidencia de cumplimiento</th>
+      <th class="c-ajuste">Ajustes implementados</th>
+      <th class="c-just">Justificación y acción correctiva</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="c-id">R2</td>
+      <td class="c-req">La vista descriptiva debe evidenciar al menos 5 factores que diferencian estadísticamente a los técnicos que adoptaron FMA de los que la abandonaron</td>
+      <td class="c-prueba">Pruebas t de Welch (variables numéricas) y chi cuadrado (categóricas) sobre el conjunto completo (n=140 técnicos)</td>
+      <td class="c-crit">Al menos 5 factores con p-valor menor a 0.05</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid"><span class="em">10 factores con p-valor menor a 0.05</span> sin filtros aplicados. Conteo dinámico visible en Vista 1 junto a la etiqueta "R2: X factores significativos (umbral 5)". Factores: sesiones totales, funcionalidades distintas, días activos, ratio de días activos, eventos semana 2, uso de Job Close Out, uso de Time, porcentaje de colegas en FMA, versión máxima de la app, estado de migración del cliente.</td>
+      <td class="c-ajuste">El conteo de factores significativos es dinámico y se actualiza con los filtros. En el diseño original era estático.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R5</td>
+      <td class="c-req">El modelo principal debe alcanzar un AUC-ROC de al menos 0.70 en el conjunto de validación</td>
+      <td class="c-prueba">Validación out-of-time sobre el conjunto de validación (n=56 técnicos, período febrero–marzo 2026)</td>
+      <td class="c-crit">AUC-ROC mayor o igual a 0.70</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid"><span class="em">Random Forest (modelo principal): AUC-ROC = 0.829.</span> Regresión Logística (baseline): 0.861. Fuente: Tabla 15 del Reporte E2 y archivo <code>models/rf_model_metadata.json</code>. El KPI "AUC-ROC del modelo" es visible en Vista 2 con indicador de estado respecto al umbral.</td>
+      <td class="c-ajuste">El modelo seleccionado fue Random Forest y no Regresión Logística a pesar de que LR tiene mayor AUC. La selección se justifica en R9 (F1-Score).</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R6</td>
+      <td class="c-req">El score agregado a nivel de cliente debe correlacionar positivamente con la tasa de retención real observada</td>
+      <td class="c-prueba">Correlación de Pearson y Spearman entre el score medio por cliente y la proporción de técnicos retenidos, sobre los 54 clientes del conjunto de validación</td>
+      <td class="c-crit">Pearson mayor o igual a 0.50</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid"><span class="em">Pearson r = 0.576 (p&lt;0.001). Spearman rho = 0.607 (p&lt;0.001).</span> Ambas correlaciones superan el umbral con alta significancia estadística. Fuente: Tabla 17 del Reporte E2.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R7</td>
+      <td class="c-req">El modelo debe detectar al menos el 70% de los técnicos que realmente abandonaron FMA (sensibilidad sobre la clase abandono)</td>
+      <td class="c-prueba">Recall sobre la clase abandono (label=0) en el conjunto de validación, umbral de clasificación 0.5</td>
+      <td class="c-crit">Recall clase abandono mayor o igual a 0.70</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid"><span class="em">Random Forest: Recall = 0.78.</span> El modelo captura 25 de los 32 abandonos reales en el conjunto de validación. Fuente: Tabla 15 y Tabla 20 del Reporte E2.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R8</td>
+      <td class="c-req">La precisión del modelo sobre la clase abandono debe ser de al menos el 60%</td>
+      <td class="c-prueba">Precisión sobre la clase abandono en el conjunto de validación, umbral 0.5</td>
+      <td class="c-crit">Precisión mayor o igual a 0.60</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid"><span class="em">Random Forest: Precisión = 0.86.</span> De cada 10 alertas de abandono que emite el modelo, 8.6 corresponden a abandonos reales. Fuente: Tabla 15 del Reporte E2.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R9</td>
+      <td class="c-req">El F1-Score del modelo sobre la clase abandono debe ser de al menos 0.65</td>
+      <td class="c-prueba">F1-Score (media armónica entre recall y precisión) en el conjunto de validación</td>
+      <td class="c-crit">F1-Score mayor o igual a 0.65</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid"><span class="em">Random Forest: F1 = 0.82.</span> Este resultado, combinado con el umbral F1-óptimo = 0.48 (umbral de probabilidad que maximiza el F1-score sobre el conjunto de validación; produce métricas idénticas al umbral por defecto de 0.50), fue el criterio determinante para seleccionar RF frente a LR (F1 = 0.75 a pesar de mayor AUC). Fuente: Tablas 14 y 15 del Reporte E2.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R10</td>
+      <td class="c-req">Para cualquier predicción individual, debe ser posible identificar al menos 3 factores determinantes del score</td>
+      <td class="c-prueba">Cálculo de valores SHAP con TreeExplainer sobre el conjunto de validación; verificación de la columna de factores en Vista 2</td>
+      <td class="c-crit">Top-3 factores SHAP por técnico visibles en el tablero</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid">Vista 2 muestra la columna "Factores SHAP (top-3)" en la tabla de técnicos por cliente. Factor principal en texto destacado; factores 2 y 3 en texto secundario. Datos provenientes de <code>shap_values.parquet</code> (columnas <code>factor_1</code>, <code>factor_2</code>, <code>factor_3</code>). SHAP global top-10 visible en Vista 1.</td>
+      <td class="c-ajuste">En el diseño inicial solo se mostraba el factor principal. Se extendió la visualización a top-3 en la tabla de técnicos de Vista 2.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R11</td>
+      <td class="c-req">La diferencia entre el AUC en entrenamiento y el AUC en validación no debe superar los 5 puntos porcentuales</td>
+      <td class="c-prueba">Comparación de AUC en entrenamiento y validación para el modelo principal</td>
+      <td class="c-crit">Delta AUC menor o igual a 5 pp</td>
+      <td class="c-est"><span class="no">No</span></td>
+      <td class="c-evid"><span class="em">RF: AUC train = 0.997, AUC validación = 0.829. Delta = 16.8 pp.</span> Ninguno de los cuatro modelos evaluados cumple el umbral: LR = 13.9 pp, RF = 16.8 pp, AdaBoost = 18.4 pp, XGBoost = 18.6 pp. Fuente: Tabla 16 del Reporte E2.</td>
+      <td class="c-ajuste">Tres iteraciones de diseño (eliminación de leakage temporal, recalibración del umbral de etiqueta, VIF iterativo) redujeron el gap respecto a iteraciones previas con AUCs artificialmente elevados (hasta 0.976 por leakage).</td>
+      <td class="c-just">El gap se atribuye al tamaño reducido del conjunto de entrenamiento: n=84 técnicos, 16 casos de abandono. La relación eventos por variable (EPV) es 0.9, muy por debajo del umbral mínimo recomendado de 10. Un análisis de sub-muestreo controlado (bootstrap x50, re-muestreado al 81% de retención) atribuye más del 95% del delta al tamaño de muestra; las curvas de aprendizaje confirman que el AUC de validación sigue una pendiente positiva al usar el 100% del conjunto de entrenamiento, indicando que el modelo mejorará sistemáticamente con más datos.<br><br>
+      <strong>Plan de cierre en dos etapas:</strong><br>
+      Etapa 1 (Q3 2026, n aprox. 500 técnicos): re-entrenamiento con la cohorte de ingresantes Q2 2026 extraída desde Snowflake. EPV proyectado entre 5 y 6. Objetivo: verificar delta menor o igual a 10 pp y seleccionar configuración final entre RF y XGBoost (<code>reg_lambda=20</code>).<br>
+      Etapa 2 (Q4 2026, n mayor o igual a 2.000 técnicos): muestra expandida con ingresantes Q1–Q2 2026. EPV proyectado mayor o igual a 13, superando el umbral de 10. Con esta configuración se estima delta menor o igual a 5 pp, alcanzando el umbral del requerimiento.<br><br>
+      El estado "No cumple" aplica exclusivamente a la muestra de calibración académica (n=84). La resolución está programada en el despliegue corporativo con el dataset completo de ServiceTitan.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R12</td>
+      <td class="c-req">El reporte de selección de modelos debe comparar al menos 3 modelos alternativos</td>
+      <td class="c-prueba">Entrenamiento y evaluación de cuatro modelos con el mismo protocolo experimental (mismas variables, misma partición, RANDOM_STATE=42)</td>
+      <td class="c-crit">Comparación de al menos 3 modelos</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid"><span class="em">Se compararon 4 modelos:</span> Regresión Logística (baseline lineal), Random Forest (bagging no paramétrico, modelo principal), XGBoost (boosting con regularización L1/L2) y AdaBoost (boosting sin regularización formal). Fuente: Tablas 3, 4, 15 y 21 del Reporte E2.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R13</td>
+      <td class="c-req">El pipeline completo, desde los archivos fuente hasta la generación de scores y SHAP, debe ejecutarse en menos de 10 minutos</td>
+      <td class="c-prueba">Cronometraje de cada etapa del pipeline sobre la muestra disponible (n=140 técnicos, más de 700.000 registros de eventos)</td>
+      <td class="c-crit">Tiempo total menor o igual a 10 minutos</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid"><span class="em">Pipeline completo sobre muestra: 21 segundos (0.4 minutos).</span> Desglose: ETL 3s, feature store 5s, scoring RF &lt;0.1s, SHAP TreeExplainer 1.5s, agregación &lt;0.1s. Estimación para producción (~66.000 técnicos): menor a 10 minutos. La muestra de más de 700.000 registros generados por 140 técnicos únicos refleja la granularidad propia de datos de aplicaciones móviles. Fuente: Tabla 19 del Reporte E2 y Sección 10 de la documentación técnica.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- FUNCIONAL                                                     -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="section-heading pb">Aspecto: Funcional</div>
+
+<table>
+  <thead>
+    <tr>
+      <th class="c-id">ID</th>
+      <th class="c-req">Requerimiento</th>
+      <th class="c-prueba">Prueba realizada</th>
+      <th class="c-crit">Criterio / Métrica</th>
+      <th class="c-est">Estado</th>
+      <th class="c-evid">Evidencia de cumplimiento</th>
+      <th class="c-ajuste">Ajustes implementados</th>
+      <th class="c-just">Justificación y acción correctiva</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="c-id">R14.1</td>
+      <td class="c-req">Vista descriptiva que evidencie los factores que diferencian a los técnicos que adoptaron FMA de los que la abandonaron</td>
+      <td class="c-prueba">Revisión de Vista 1: componentes, interactividad y cobertura de factores</td>
+      <td class="c-crit">Vista con tabla comparativa, gráficos de uso de funcionalidades y al menos 5 factores significativos</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid">Vista 1 implementa: (1) cuatro KPIs globales, (2) recuadro de hallazgos clave calculado dinámicamente, (3) tabla comparativa con p-valores por variable, (4) gráfico de uso de funcionalidades en semana 1 por grupo, y (5) top-10 variables por importancia SHAP global del modelo RF. Filtros disponibles: industria, tamaño del cliente y plataforma del dispositivo.</td>
+      <td class="c-ajuste">El diseño de E1 planteaba la vista a nivel de cliente. La implementación la ejecuta a nivel de técnico, que es la unidad de análisis del modelo. La Vista 2 agrega los resultados a nivel de cliente.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R14.2</td>
+      <td class="c-req">Vista predictiva que muestre el score de riesgo por cliente y por técnico</td>
+      <td class="c-prueba">Revisión de Vista 2: tabla de clientes, detalle por técnico, KPIs de riesgo</td>
+      <td class="c-crit">Vista con lista de clientes ordenados por riesgo, score individual por técnico y factores SHAP</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid">Vista 2 implementa: (1) cinco KPIs (clientes en riesgo crítico y alto, total clientes, estancados en riesgo alto/crítico, AUC-ROC del modelo), (2) tabla de clientes ordenados por score de menor a mayor con nivel de riesgo, barra de score, % en FMA, número de técnicos y acción sugerida, y (3) tabla de detalle por técnico con score, nivel de riesgo, top-3 factores SHAP y resultado real. Filtros: nivel de riesgo, estado de migración e industria.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R14.3</td>
+      <td class="c-req">Vista prescriptiva con recomendaciones accionables por segmento de cliente</td>
+      <td class="c-prueba">Revisión de Vista 3: segmentos, tabla de priorización y tarjetas de recomendación</td>
+      <td class="c-crit">Vista con clasificación de clientes en segmentos y recomendaciones diferenciadas con respaldo evidencial</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid">Vista 3 implementa: (1) banner de estado del modelo (activo si AUC mayor o igual a 0.70), (2) dos KPIs globales (clientes en estado intermedio, umbral de inflexión social 40%), (3) cuatro tarjetas de segmento con conteo de clientes, (4) tabla de priorización por score, y (5) tres tarjetas de recomendación con acciones numeradas y respaldo evidencial para los segmentos 1, 2 y 3; el segmento 4 (En buen camino) no requiere tarjeta de acciones ya que no demanda intervención activa. Filtros: segmento e industria.</td>
+      <td class="c-ajuste">Se agregó barra de filtros (segmento e industria) que no estaba en el diseño inicial de esta vista.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R15</td>
+      <td class="c-req">El tablero debe incluir filtros por cliente, industria, nivel de riesgo, estado de migración y plataforma del dispositivo</td>
+      <td class="c-prueba">Revisión de los filtros disponibles en cada vista del tablero</td>
+      <td class="c-crit">Presencia de filtros para los cinco criterios especificados</td>
+      <td class="c-est"><span class="parcial">Parcial</span></td>
+      <td class="c-evid">Vista 1: filtros por industria, tamaño del cliente y plataforma del dispositivo. Vista 2: filtros por nivel de riesgo, estado de migración e industria. Vista 3: filtros por segmento e industria. El filtro explícito por cliente no está presente en la barra de filtros de ninguna vista; Vista 2 incluye el selector "Seleccionar cliente" que restringe la tabla de técnicos al cliente elegido, cumpliendo la función en el contexto de análisis de detalle.</td>
+      <td class="c-ajuste">Se agregó barra de filtros a Vista 3, que no tenía filtros en el diseño inicial.</td>
+      <td class="c-just">El filtro por cliente como elemento de la barra de filtros principal no está implementado. Se satisface parcialmente mediante el selector de detalle en Vista 2. <strong>Acción correctiva:</strong> en la siguiente iteración, agregar un campo de búsqueda por ID de cliente en la barra de filtros de Vista 2 que restrinja tanto la tabla de clientes como la tabla de técnicos.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R16</td>
+      <td class="c-req">Los datos del tablero deben poder actualizarse de forma bisemanal mediante la ejecución del pipeline</td>
+      <td class="c-prueba">Verificación de la fecha de última actualización visible en el tablero y del pipeline ejecutable</td>
+      <td class="c-crit">Pipeline ejecutable con instrucciones documentadas; fecha visible en la interfaz</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid">La barra superior del tablero muestra la fecha de última actualización leída desde <code>data/last_updated.txt</code>, generado automáticamente al ejecutar <code>pipeline.py</code>. La documentación técnica (Sección 7) documenta los pasos de actualización.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R17</td>
+      <td class="c-req">El tablero debe ser accesible desde un navegador web para al menos 3 usuarios distintos sin instalación local</td>
+      <td class="c-prueba">Verificación de la URL de despliegue en Streamlit Community Cloud</td>
+      <td class="c-crit">URL activa, accesible públicamente desde navegador</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid"><span class="em">URL activa verificada: https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app.</span> Accesible desde cualquier navegador sin instalación. El despliegue corporativo definitivo será en Tableau conectado a Snowflake, según la arquitectura de E1.</td>
+      <td class="c-ajuste">La implementación académica usa Streamlit (opción de respaldo contemplada en E1) en lugar de Tableau.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R18</td>
+      <td class="c-req">El 80% de las tareas de uso del tablero deben poder completarse sin asistencia externa; satisfacción de usabilidad promedio de 4 sobre 5</td>
+      <td class="c-prueba">Prueba de usuario con al menos 3 PMs del equipo FMA ejecutando tareas predefinidas</td>
+      <td class="c-crit">80% de tareas completadas sin asistencia; puntuación promedio mayor o igual a 4/5</td>
+      <td class="c-est"><span class="parcial">Parcial</span></td>
+      <td class="c-evid">No se realizaron pruebas formales con usuarios de producción de ServiceTitan por restricciones de acceso en el contexto académico. <strong>Evidencia indirecta disponible:</strong><br><br>
+      (1) <em>Revisión interna (mayo 2026):</em> los cuatro integrantes del equipo ejecutaron las tres tareas centrales del protocolo de E1 -- identificar los tres clientes de mayor riesgo en Vista 2, encontrar el factor SHAP principal de un técnico específico, y determinar la acción recomendada para un cliente en segmento 2 -- sin asistencia en un promedio de 3 minutos 40 segundos por tarea. Las 3 tareas cubiertas corresponden a los casos de uso de mayor frecuencia; las 5 tareas completas del protocolo de E1 serán evaluadas en la sesión formal con PMs (ver acción correctiva).<br><br>
+      (2) <em>Decisiones de diseño orientadas a reducción de fricción:</em> etiquetas en español con terminología de negocio (no estadística), escala de riesgo con acción sugerida integrada en la misma celda de la tabla, barra de filtros idéntica en las tres vistas para reducir la curva de aprendizaje entre vistas, KPIs hero como punto de entrada antes de las tablas de detalle, y columna "Acción sugerida" pre-calculada en Vista 2 para que el PM no necesite interpretar el score numérico.</td>
+      <td class="c-ajuste">El diseño de la interfaz incorporó retroalimentación del prototipo fachada de E1: etiquetas en español, terminología de negocio, barra de filtros consistente en las tres vistas y KPIs hero como punto de entrada.</td>
+      <td class="c-just">Restricción de acceso en contexto académico; no fue posible acceder a PMs del equipo FMA de ServiceTitan para pruebas formales. <strong>Acción correctiva (Q3 2026):</strong> sesión de prueba presencial con 3 PMs del equipo FMA midiendo: (a) tasa de completación de las 5 tareas del protocolo definido en E1 sin asistencia externa, (b) tiempo de completación por tarea, y (c) puntuación de satisfacción en escala 1 a 5 (System Usability Scale adaptada al contexto). Criterio de éxito: tasa de completación mayor o igual al 80% y puntuación media mayor o igual a 4/5.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R19</td>
+      <td class="c-req">El pipeline debe ser capaz de procesar el volumen de datos de producción de ServiceTitan</td>
+      <td class="c-prueba">Prueba de carga sobre el dataset completo o estimación documentada de tiempos de ejecución</td>
+      <td class="c-crit">Procesamiento viable con tiempos razonables para el ciclo bisemanal</td>
+      <td class="c-est"><span class="parcial">Parcial</span></td>
+      <td class="c-evid">El prototipo opera sobre la muestra de calibración provista por ServiceTitan: 140 técnicos únicos, 54 clientes únicos y más de 700.000 registros de eventos de sesión. La diferencia entre el número de entidades únicas y el volumen de registros es característica de datos de aplicaciones móviles. Tiempos estimados para producción (~66.000 técnicos): ETL 5–8 min, scoring &lt;1 min, SHAP 2–4 min, agregación &lt;1 min, total estimado entre 8 y 14 min según configuración del hardware de producción; escenario base: 8 min. Fuente: Sección 10 de la documentación técnica.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">Restricción de confidencialidad de datos en contexto académico. La muestra fue provista por ServiceTitan para calibrar parámetros del modelo, que serán replicados sobre el dataset de producción. <strong>Acción correctiva:</strong> prueba de carga sobre el dataset completo en el despliegue corporativo (Q3 2026), validando los tiempos estimados contra la infraestructura de producción de ServiceTitan.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R20</td>
+      <td class="c-req">El tablero no debe exponer información de identificación personal ni nombres de clientes o técnicos</td>
+      <td class="c-prueba">Revisión del código del tablero y de los datos visualizados en las tres vistas</td>
+      <td class="c-crit">Solo identificadores internos (IDs numéricos) visibles; sin nombres ni datos personales</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid">El tablero muestra únicamente <code>TENANT_ID</code> y <code>TECHNICIAN_ID</code> en todas las vistas. No se visualizan nombres de clientes, nombres de técnicos ni datos de identificación personal. El código en <code>app.py</code> confirma que las columnas usadas son los campos ID. El archivo <code>analytical_dataset.parquet</code> no contiene columnas de nombres propios.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+    <tr>
+      <td class="c-id">R21</td>
+      <td class="c-req">El sistema debe incluir documentación de usuario y técnica que permita su instalación, uso y mantenimiento sin asistencia del equipo de desarrollo</td>
+      <td class="c-prueba">Revisión de los documentos incluidos en el repositorio</td>
+      <td class="c-crit">Manual de usuario con instrucciones de instalación, casos de uso y glosario; documentación técnica con arquitectura, configuración y proceso de re-entrenamiento</td>
+      <td class="c-est"><span class="si">Sí</span></td>
+      <td class="c-evid">El repositorio incluye: (1) <code>documentacion/manual_de_usuario.md</code>: instalación local en 4 pasos, acceso en la nube, descripción de las tres vistas, preguntas frecuentes y glosario; (2) <code>documentacion/documentacion_tecnica.md</code>: arquitectura del pipeline, configuración, definición de la variable objetivo, variables seleccionadas, preprocesamiento, métricas del modelo, proceso de re-entrenamiento, despliegue en Streamlit Cloud, flujo de datos y tiempos de ejecución estimados.</td>
+      <td class="c-ajuste">Ninguno.</td>
+      <td class="c-just">No aplica.</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

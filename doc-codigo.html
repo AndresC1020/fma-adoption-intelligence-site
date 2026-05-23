@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMA Adoption Intelligence — Código fuente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="site-sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-name"><span class="sidebar-brand-dot"></span>FMA Adoption Intelligence</div>
+    <div class="sidebar-brand-sub">Maestría MIAD &nbsp;&middot;&nbsp; Uniandes</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Principal</span>
+      <a href="index.html" class="sidebar-link">Inicio</a>
+      <a href="demo.html" class="sidebar-link">Demo</a>
+      <a href="evaluacion.html" class="sidebar-link">Evaluación</a>
+      <a href="presentacion.html" class="sidebar-link">Presentación</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Documentación</span>
+      <a href="documentacion.html" class="sidebar-link sidebar-sub">Arquitectura del pipeline</a>
+      <a href="doc-modelo.html" class="sidebar-link sidebar-sub">Modelo predictivo</a>
+      <a href="doc-manual.html" class="sidebar-link sidebar-sub">Manual de usuario</a>
+      <a href="doc-tecnica.html" class="sidebar-link sidebar-sub">Documentación técnica</a>
+      <a href="doc-reporte.html" class="sidebar-link sidebar-sub">Reporte experimentos E2</a>
+      <a href="doc-codigo.html" class="sidebar-link sidebar-sub active">Código fuente</a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="site-main">
+
+<div class="page-hero">
+  <div class="wrap">
+    <div class="sec-tag">R4d — Código fuente</div>
+    <h1>Repositorio GitHub</h1>
+    <p>Código completo del pipeline de datos, modelo predictivo y tablero Streamlit.</p>
+  </div>
+</div>
+
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Acceso al repositorio</div>
+    <h2>Código completo y abierto</h2>
+    <p class="sec-desc">El repositorio contiene todo el código necesario para replicar el análisis, re-entrenar el modelo y desplegar el tablero en local o en la nube.</p>
+    <div style="margin-bottom:28px;">
+      <a href="https://github.com/mbayonal/fma-adoption-intelligence" target="_blank" rel="noopener" class="btn btn-primary">
+        Ver repositorio en GitHub &nearr;
+      </a>
+    </div>
+    <div class="cards" style="max-width:760px;">
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:6px;">app.py</h3>
+        <p>Aplicación principal de Streamlit. Las tres vistas analíticas (Factores, Riesgo, Guía) y la lógica de navegación entre ellas.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:6px;">pipeline.py</h3>
+        <p>ETL, ingeniería de características, scoring RF y cálculo de SHAP values. Cinco fases secuenciales. ~21 seg sobre muestra.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:6px;">src/</h3>
+        <p>Módulos de soporte: <code>etl.py</code> (transformaciones, feature store) y <code>config.py</code> (rutas y parámetros globales).</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:6px;">models/</h3>
+        <p><code>rf_model.joblib</code> — pipeline scikit-learn serializado. <code>rf_model_metadata.json</code> — features y métricas del modelo.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:6px;">data/</h3>
+        <p>Archivos parquet de salida del pipeline: <code>analytical_dataset</code>, <code>shap_values</code>, <code>feature_importance</code>, <code>tenant_scores</code>.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:6px;">documentacion/</h3>
+        <p>Manual de usuario y documentación técnica en markdown. Base de los documentos R3 y R4 de la rúbrica.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-tag">Ejecución local</div>
+    <h2>Cómo correr el proyecto</h2>
+    <p class="sec-desc">Requiere Python 3.9+. Los datos de muestra están incluidos en el repositorio (n=140 técnicos, 54 clientes).</p>
+    <div class="code-block">
+      <div><span class="comment"># 1. Clonar el repositorio</span></div>
+      <div><span class="cmd">git clone</span> <span class="arg">https://github.com/mbayonal/fma-adoption-intelligence.git</span></div>
+      <br>
+      <div><span class="comment"># 2. Crear y activar entorno virtual</span></div>
+      <div><span class="cmd">python -m venv</span> <span class="arg">.venv</span></div>
+      <div><span class="cmd">source .venv/bin/activate</span> <span class="comment">  # macOS/Linux</span></div>
+      <div><span class="arg">.venv\Scripts\Activate.ps1</span> <span class="comment">  # Windows PowerShell</span></div>
+      <br>
+      <div><span class="comment"># 3. Instalar dependencias</span></div>
+      <div><span class="cmd">pip install -r</span> <span class="arg">requirements.txt</span></div>
+      <br>
+      <div><span class="comment"># 4. Generar datos analíticos (~21 seg con datos de muestra)</span></div>
+      <div><span class="cmd">python</span> <span class="arg">pipeline.py</span></div>
+      <br>
+      <div><span class="comment"># 5. Lanzar el tablero</span></div>
+      <div><span class="cmd">streamlit run</span> <span class="arg">app.py</span></div>
+      <div><span class="comment"># Abre en http://localhost:8501</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="inst-logos">
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-uniandes"><img src="assets/logo-uniandes.png" alt="Uniandes"></div>
+        <div><div class="inst-name-w">UNIANDES</div><div class="inst-sub-w">Maestr&iacute;a MIAD</div></div>
+      </div>
+      <div class="inst-divider"></div>
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-st"><img src="assets/logo-servicetitan.png" alt="ServiceTitan"></div>
+        <div><div class="inst-name-w">ServiceTitan</div><div class="inst-sub-w">Product, FMA</div></div>
+      </div>
+    </div>
+    <div>
+      <a href="https://github.com/mbayonal/fma-adoption-intelligence" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app" target="_blank" rel="noopener">Prototipo</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /.site-main -->
+</div><!-- /.app-layout -->
+
+</body>
+</html>

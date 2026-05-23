@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentación técnica — FMA Adoption Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-brand">
+      <span class="nav-dot"></span>FMA Adoption Intelligence
+    </a>
+    <div class="nav-links">
+      <a href="../index.html">Inicio</a>
+      <a href="../demo.html">Demo</a>
+      <a href="../documentacion.html" class="active">Documentación</a>
+      <a href="../evaluacion.html">Evaluación</a>
+      <a href="../presentacion.html">Presentación</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="wrap">
+    <div class="sec-tag">R4c — Documentación técnica</div>
+    <h1>Documentación técnica del sistema</h1>
+    <p>Descripción detallada de la implementación: pipeline de datos, modelo predictivo, variables seleccionadas, métricas de validación y proceso de re-entrenamiento.</p>
+  </div>
+</div>
+
+<!-- TOC -->
+<section class="bg-white" style="padding:32px 0;">
+  <div class="wrap">
+    <div class="doc-toc">
+      <div class="doc-toc-title">Contenido</div>
+      <ol>
+        <li><a href="#pipeline">Arquitectura del pipeline</a></li>
+        <li><a href="#config">Configuración de rutas</a></li>
+        <li><a href="#target">Definición de la variable objetivo</a></li>
+        <li><a href="#variables">Variables seleccionadas (Top-20)</a></li>
+        <li><a href="#preprocesamiento">Preprocesamiento del modelo RF</a></li>
+        <li><a href="#metricas">Métricas de validación</a></li>
+        <li><a href="#reentrenamiento">Proceso de re-entrenamiento</a></li>
+        <li><a href="#despliegue">Despliegue en Streamlit Cloud</a></li>
+        <li><a href="#flujo">Flujo de datos completo</a></li>
+        <li><a href="#tiempos">Tiempos de ejecución</a></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- 1. PIPELINE -->
+<section id="pipeline">
+  <div class="wrap">
+    <div class="sec-tag">1. Arquitectura del pipeline</div>
+    <h2>Flujo interno de pipeline.py</h2>
+    <p class="doc-p">
+      El pipeline transforma los datos crudos en los archivos analíticos que consume el tablero. No re-entrena el modelo: el modelo RF fue entrenado en la entrega 2 y se carga serializado desde <code class="doc-inline-code">models/rf_model.joblib</code>.
+    </p>
+
+    <div class="arch-wrap" style="max-width:560px;">
+      <div class="arch-flow">
+        <div class="arch-node">
+          <div class="arch-node-tag">Entrada</div>
+          <div class="arch-node-name">CSVs fuente</div>
+          <ul class="arch-node-list">
+            <li>Directorio <code>data/raw/</code></li>
+            <li>Datos de eventos FullStory, tenants y técnicos</li>
+          </ul>
+        </div>
+        <div class="arch-sep"><div class="arch-line"></div><div class="arch-arrow-tip"></div></div>
+        <div class="arch-node hl">
+          <div class="arch-node-tag">ETL — Fase 1</div>
+          <div class="arch-node-name">etl.run_phase1()</div>
+          <ul class="arch-node-list">
+            <li>Limpieza de tenants, técnicos y eventos</li>
+            <li>Unificación de fuentes y normalizacion de IDs</li>
+          </ul>
+        </div>
+        <div class="arch-sep"><div class="arch-line"></div><div class="arch-arrow-tip"></div></div>
+        <div class="arch-node hl">
+          <div class="arch-node-tag">Feature Engineering — Fase 2</div>
+          <div class="arch-node-name">etl.build_feature_store()</div>
+          <ul class="arch-node-list">
+            <li>57 variables por técnico en dos bloques: comportamental (A) y contexto del tenant</li>
+            <li>Ventana de observación: primeros 14 días del técnico en FMA</li>
+          </ul>
+        </div>
+        <div class="arch-sep"><div class="arch-line"></div><div class="arch-arrow-tip"></div></div>
+        <div class="arch-node hl">
+          <div class="arch-node-tag">Scoring — Fase 3</div>
+          <div class="arch-node-name">RF pipeline (joblib)</div>
+          <ul class="arch-node-list">
+            <li>predict_proba: score de retención [0,1] por técnico</li>
+            <li>Output: <code>analytical_dataset.parquet</code></li>
+          </ul>
+          <span class="arch-node-time">Scoring: &lt; 0.1 seg (muestra)</span>
+        </div>
+        <div class="arch-sep"><div class="arch-line"></div><div class="arch-arrow-tip"></div></div>
+        <div class="arch-node hl">
+          <div class="arch-node-tag">Interpretabilidad — Fase 4</div>
+          <div class="arch-node-name">SHAP TreeExplainer</div>
+          <ul class="arch-node-list">
+            <li>Top-3 factores explicativos por técnico</li>
+            <li>Output: <code>shap_values.parquet</code> y <code>feature_importance.parquet</code></li>
+          </ul>
+          <span class="arch-node-time">SHAP: ~1.5 seg (muestra)</span>
+        </div>
+        <div class="arch-sep"><div class="arch-line"></div><div class="arch-arrow-tip"></div></div>
+        <div class="arch-node">
+          <div class="arch-node-tag">Agregación — Fase 5</div>
+          <div class="arch-node-name">Agregación por tenant</div>
+          <ul class="arch-node-list">
+            <li>Score medio, cuartil y métricas de retención real por cliente</li>
+            <li>Output: <code>tenant_scores.parquet</code></li>
+          </ul>
+        </div>
+      </div>
+      <div class="arch-note">
+        <strong>Total pipeline:</strong> ~3.8 seg (muestra n=140) · estimado &lt;10 min en producción (n=66K técnicos).
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. CONFIG -->
+<section id="config" class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">2. Configuración</div>
+    <h2>Rutas del sistema (src/config.py)</h2>
+
+    <table class="doc-table" style="max-width:740px;">
+      <thead>
+        <tr><th>Constante</th><th>Valor</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>ROOT</code></td><td><code>entrega_3/</code></td><td>Directorio raíz del prototipo</td></tr>
+        <tr><td><code>RAW_DIR</code></td><td><code>data/raw/</code></td><td>CSVs fuente de entrada</td></tr>
+        <tr><td><code>OUT_DIR</code></td><td><code>data/</code></td><td>Parquet de salida del pipeline</td></tr>
+        <tr><td><code>MOD_DIR</code></td><td><code>models/</code></td><td>Modelo serializado y metadatos</td></tr>
+        <tr><td><code>RF_MODEL</code></td><td><code>models/rf_model.joblib</code></td><td>Pipeline scikit-learn serializado</td></tr>
+        <tr><td><code>RF_METADATA</code></td><td><code>models/rf_model_metadata.json</code></td><td>Features y métricas del modelo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 3. VARIABLE OBJETIVO -->
+<section id="target">
+  <div class="wrap">
+    <div class="sec-tag">3. Variable objetivo</div>
+    <h2>Definición de retención sostenida</h2>
+
+    <div class="code-block" style="max-width:640px;">
+      <div><span class="comment">y = 1  si el técnico registra &ge; 15 días activos en FMA durante los 60 días</span></div>
+      <div><span class="comment">        posteriores a la ventana de observación de 14 días</span></div>
+      <div><span class="comment">y = 0  si no lo hace</span></div>
+    </div>
+
+    <div class="metrics-row" style="max-width:640px;margin-top:20px;">
+      <div class="metric">
+        <div class="metric-val">14 días</div>
+        <div class="metric-lbl">Ventana de observación (T0) — primeros 14 días del técnico en FMA</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">Días 15-74</div>
+        <div class="metric-lbl">Ventana de etiquetado (T1) — período de medición de retención</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">15 días</div>
+        <div class="metric-lbl">Umbral de actividad mínima para clasificar como adoptante sostenido</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. VARIABLES -->
+<section id="variables" class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">4. Selección de variables</div>
+    <h2>Top-20 variables por score combinado</h2>
+    <p class="doc-p">
+      El score combinado pondera importancia del Random Forest (60%) e información mutua / chi cuadrado (40%) para seleccionar las variables más predictivas.
+    </p>
+    <div class="code-block" style="max-width:480px;margin-bottom:20px;">
+      <div><span class="arg">combined_score</span> <span class="comment">= 0.6 × RF_importance_norm + 0.4 × MI/chi2_norm</span></div>
+    </div>
+
+    <table class="doc-table" style="max-width:560px;">
+      <thead>
+        <tr><th>Variable</th><th>Tipo</th><th>Score</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>app_version_max</code></td><td>Categórica</td><td>1.000</td></tr>
+        <tr><td><code>obs_events_late_half_w14</code></td><td>Numérica</td><td>0.398</td></tr>
+        <tr><td><code>device_model_mode</code></td><td>Categórica</td><td>0.377</td></tr>
+        <tr><td><code>obs_active_days_ratio_w14</code></td><td>Numérica</td><td>0.367</td></tr>
+        <tr><td><code>obs_sessions_count_w14</code></td><td>Numérica</td><td>0.348</td></tr>
+        <tr><td><code>obs_active_days_w14</code></td><td>Numérica</td><td>0.323</td></tr>
+        <tr><td><code>obs_active_days_late_half_w14</code></td><td>Numérica</td><td>0.247</td></tr>
+        <tr><td><code>obs_time_count_w14</code></td><td>Numérica</td><td>0.225</td></tr>
+        <tr><td><code>obs_events_count_w14</code></td><td>Numérica</td><td>—</td></tr>
+        <tr><td><code>obs_events_count_w14_log</code></td><td>Numérica</td><td>—</td></tr>
+        <tr><td><code>obs_events_growth_ratio_w14</code></td><td>Numérica</td><td>—</td></tr>
+        <tr><td><code>app_version_mode</code></td><td>Categórica</td><td>—</td></tr>
+        <tr><td><code>obs_active_days_early_half_w14</code></td><td>Numérica</td><td>—</td></tr>
+        <tr><td><code>TECHNICIAN_LICENCES</code></td><td>Numérica</td><td>—</td></tr>
+        <tr><td><code>obs_job_close_out_count_w14</code></td><td>Numérica</td><td>—</td></tr>
+        <tr><td><code>obs_time_pct_w14</code></td><td>Numérica</td><td>—</td></tr>
+        <tr><td><code>tenant_technician_licenses_log</code></td><td>Numérica</td><td>—</td></tr>
+        <tr><td><code>FMA_MIGRATION_STATUS_30D</code></td><td>Categórica</td><td>—</td></tr>
+        <tr><td><code>TENANT_BUSINESS_FOCUS</code></td><td>Categórica</td><td>—</td></tr>
+        <tr><td><code>fma_penetration_30d</code></td><td>Numérica</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 5. PREPROCESAMIENTO -->
+<section id="preprocesamiento">
+  <div class="wrap">
+    <div class="sec-tag">5. Preprocesamiento</div>
+    <h2>Pipeline scikit-learn del modelo RF</h2>
+
+    <div class="code-block" style="max-width:680px;">
+      <div><span class="arg">Pipeline</span><span class="cmd">([</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">("pre", ColumnTransformer([</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">("num", "passthrough", top_num),   # 15 variables numéricas</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">("cat", OneHotEncoder(handle_unknown="ignore"), top_cat),  # 5 categóricas → OHE</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">])),</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">("clf", RandomForestClassifier(</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">class_weight="balanced",</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">random_state=42,</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># hiperparámetros optimizados via RandomizedSearchCV con TimeSeriesSplit</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">))</span></div>
+      <div><span class="cmd">])</span></div>
+    </div>
+
+    <ul class="doc-ul" style="margin-top:16px;">
+      <li><strong>Desbalance de clases:</strong> <code class="doc-inline-code">class_weight='balanced'</code> — proporción 3:1 en datos de entrenamiento.</li>
+      <li><strong>Valores nulos:</strong> conteos se imputan como 0 cuando no hubo actividad; categóricas como "Unknown".</li>
+      <li><strong>Validación:</strong> TimeSeriesSplit para respetar la naturaleza temporal de los datos.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6. MÉTRICAS -->
+<section id="metricas" class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">6. Métricas de validación</div>
+    <h2>Resultados out-of-time</h2>
+    <p class="doc-p">Validación fuera del tiempo: entrenamiento hasta el 8 de febrero de 2026, validación del 9 de febrero al 12 de marzo de 2026.</p>
+
+    <div class="metrics-row" style="max-width:700px;margin-bottom:24px;">
+      <div class="metric"><div class="metric-val">0.829</div><div class="metric-lbl">AUC-ROC (umbral R5: &ge; 0.70)</div></div>
+      <div class="metric"><div class="metric-val">0.78</div><div class="metric-lbl">Recall / Sensibilidad (umbral R7: &ge; 0.70)</div></div>
+      <div class="metric"><div class="metric-val">0.86</div><div class="metric-lbl">Precisión (umbral R8: &ge; 0.60)</div></div>
+      <div class="metric"><div class="metric-val">0.82</div><div class="metric-lbl">F1-Score (umbral R9: &ge; 0.65)</div></div>
+    </div>
+
+    <table class="doc-table" style="max-width:680px;">
+      <thead>
+        <tr><th>Métrica</th><th>Valor</th><th>Umbral requerido</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>AUC-ROC</td><td>0.829</td><td>&ge; 0.70 (R5)</td><td><span class="badge badge-green">Cumple</span></td></tr>
+        <tr><td>Recall clase abandono</td><td>0.78</td><td>&ge; 0.70 (R7)</td><td><span class="badge badge-green">Cumple</span></td></tr>
+        <tr><td>Precisión clase abandono</td><td>0.86</td><td>&ge; 0.60 (R8)</td><td><span class="badge badge-green">Cumple</span></td></tr>
+        <tr><td>F1-Score clase abandono</td><td>0.82</td><td>&ge; 0.65 (R9)</td><td><span class="badge badge-green">Cumple</span></td></tr>
+        <tr><td>Delta AUC train-val</td><td>16.8 pp</td><td>&le; 5 pp (R11)</td><td><span class="badge badge-amber">No cumple</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="notice-warn">
+      <strong>Limitación documentada (R11):</strong> El gap de 16.8 pp se atribuye al tamaño reducido del conjunto de entrenamiento (n=84) y a la diferencia de distribución entre cohortes (tasa de retención: train=81% vs. val=43%). No impide el uso del modelo en producción dado que las métricas de validación superan todos los umbrales exigidos. Plan correctivo: ampliar muestra a 2.000-5.000 técnicos en Q3-Q4 2026.
+    </div>
+  </div>
+</section>
+
+<!-- 7. RE-ENTRENAMIENTO -->
+<section id="reentrenamiento">
+  <div class="wrap">
+    <div class="sec-tag">7. Re-entrenamiento</div>
+    <h2>Proceso de actualización del modelo (R21 / R16)</h2>
+    <p class="doc-p">El modelo se re-entrena manualmente cuando hay nuevos datos disponibles. Frecuencia recomendada: bisemanal, o cuando lleguen datos de &ge;50 técnicos nuevos.</p>
+
+    <div class="steps" style="max-width:740px;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Actualizar los datos fuente</div>
+          <div class="step-desc">Copiar los nuevos CSVs al directorio <code>data/raw/</code>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Ejecutar el módulo de entrenamiento</div>
+          <div class="code-block" style="margin-top:10px;">
+            <div><span class="cmd">source .venv/bin/activate</span></div>
+            <div><span class="cmd">python -m</span> <span class="arg">src.run</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Copiar el nuevo modelo</div>
+          <div class="code-block" style="margin-top:10px;">
+            <div><span class="cmd">cp</span> <span class="arg">entrega_2/code/outputs/models/RF.joblib entrega_3/models/rf_model.joblib</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">Actualizar metadatos del modelo</div>
+          <div class="step-desc">Actualizar <code>entrega_3/models/rf_model_metadata.json</code> con las métricas y features de la nueva corrida (ver <code>entrega_2/code/outputs/reports/run_metadata.json</code>).</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div>
+          <div class="step-title">Regenerar los archivos analíticos</div>
+          <div class="code-block" style="margin-top:10px;">
+            <div><span class="cmd">python</span> <span class="arg">pipeline.py</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div>
+          <div class="step-title">Verificar métricas</div>
+          <div class="step-desc">Confirmar que las métricas del nuevo modelo cumplen los umbrales R5-R9 antes de publicar.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-h3">Criterios de alerta para re-entrenamiento forzado</div>
+    <ul class="doc-ul">
+      <li>AUC en validación cae por debajo de 0.70 (R5).</li>
+      <li>La distribución de <code class="doc-inline-code">app_version_max</code> en nuevos datos difiere significativamente (nueva versión de app lanzada).</li>
+      <li>Se incorporan &gt;500 técnicos nuevos al dataset (suficiente volumen para re-entrenar).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 8. DESPLIEGUE -->
+<section id="despliegue" class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">8. Despliegue</div>
+    <h2>Streamlit Community Cloud (R17)</h2>
+
+    <div class="steps" style="max-width:740px;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Subir el código a GitHub</div>
+          <div class="step-desc">Subir el directorio <code>entrega_3/</code> a un repositorio GitHub. Solo el código fuente, sin CSVs.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Conectar en Streamlit Cloud</div>
+          <div class="step-desc">En <a href="https://streamlit.io/cloud" target="_blank" rel="noopener">streamlit.io/cloud</a>, conectar el repositorio y apuntar a <code>app.py</code>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Configurar los datos analíticos</div>
+          <div class="step-desc">Subir los Parquet generados como archivos de datos del app, o conectar a un bucket S3/GCS si se dispone de infraestructura.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice">
+      El tablero queda accesible vía navegador para &ge;3 usuarios sin instalación local (R17). Acceso activo en:
+      <a href="https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app" target="_blank" rel="noopener">fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app</a>
+    </div>
+  </div>
+</section>
+
+<!-- 9. FLUJO COMPLETO -->
+<section id="flujo">
+  <div class="wrap">
+    <div class="sec-tag">9. Flujo de datos</div>
+    <h2>Desde Snowflake hasta el PM</h2>
+
+    <div class="arch-wrap" style="max-width:600px;">
+      <div class="arch-flow">
+        <div class="arch-node">
+          <div class="arch-node-tag">Producción</div>
+          <div class="arch-node-name">Snowflake</div>
+          <ul class="arch-node-list">
+            <li>FMA_FS_EVENT_DATA (226M eventos)</li>
+            <li>FMA_TECHNICIAN_DATA (~450K técnicos)</li>
+            <li>FMA_TENANT_DATA (~20K clientes)</li>
+          </ul>
+        </div>
+        <div class="arch-sep"><div class="arch-line"></div><div class="arch-arrow-tip"></div></div>
+        <div class="arch-node">
+          <div class="arch-node-tag">Extracción bisemanal</div>
+          <div class="arch-node-name">data/raw/</div>
+          <ul class="arch-node-list">
+            <li>CSV / Parquet exportados de Snowflake</li>
+            <li>Entrega académica: muestra de datos (n=140 técnicos)</li>
+          </ul>
+        </div>
+        <div class="arch-sep"><div class="arch-line"></div><div class="arch-arrow-tip"></div></div>
+        <div class="arch-node hl">
+          <div class="arch-node-tag">Procesamiento</div>
+          <div class="arch-node-name">pipeline.py (ETL + scoring + SHAP)</div>
+          <ul class="arch-node-list">
+            <li>5 fases: ETL, Features, Scoring, SHAP, Agregación</li>
+          </ul>
+          <span class="arch-node-time">~3.8 seg muestra · &lt;10 min producción</span>
+        </div>
+        <div class="arch-sep"><div class="arch-line"></div><div class="arch-arrow-tip"></div></div>
+        <div class="arch-node">
+          <div class="arch-node-tag">Almacenamiento</div>
+          <div class="arch-node-name">data/*.parquet</div>
+          <ul class="arch-node-list">
+            <li>4 archivos: analytical_dataset, shap_values, tenant_scores, feature_importance</li>
+          </ul>
+        </div>
+        <div class="arch-sep"><div class="arch-line"></div><div class="arch-arrow-tip"></div></div>
+        <div class="arch-node hl">
+          <div class="arch-node-tag">Aplicación</div>
+          <div class="arch-node-name">app.py (Streamlit)</div>
+          <ul class="arch-node-list">
+            <li>3 vistas: Factores, Riesgo, Guía</li>
+          </ul>
+        </div>
+        <div class="arch-sep"><div class="arch-line"></div><div class="arch-arrow-tip"></div></div>
+        <div class="arch-node">
+          <div class="arch-node-tag">Usuario final</div>
+          <div class="arch-node-name">Navegador del PM</div>
+          <ul class="arch-node-list">
+            <li>Streamlit Community Cloud</li>
+            <li>Sin instalación local requerida</li>
+          </ul>
+        </div>
+      </div>
+      <div class="arch-note">
+        <strong>Ruta a producción:</strong> Migración a Tableau + Snowflake para escalar a ~5.000 técnicos activos con extracción bisemanal automática.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. TIEMPOS -->
+<section id="tiempos" class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">10. Tiempos de ejecución (R13)</div>
+    <h2>Rendimiento del pipeline</h2>
+
+    <table class="doc-table" style="max-width:720px;">
+      <thead>
+        <tr>
+          <th>Componente</th>
+          <th>Muestra (n=140)</th>
+          <th>Producción estimada (n=66K)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>ETL completo</td><td>~1.5 seg</td><td>~5-8 min</td></tr>
+        <tr><td>Scoring RF</td><td>&lt; 0.1 seg</td><td>&lt; 1 min</td></tr>
+        <tr><td>SHAP TreeExplainer</td><td>~1.5 seg</td><td>~2-4 min</td></tr>
+        <tr><td>Agregación tenant</td><td>&lt; 0.1 seg</td><td>&lt; 1 min</td></tr>
+        <tr><td><strong>Total pipeline</strong></td><td><strong>~3.8 seg</strong></td><td><strong>&lt; 10 min</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="notice">
+      Estimación de producción basada en complejidad lineal del ETL y SHAP aproximado para n=66K con TreeExplainer. Tiempo real depende del hardware disponible.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="inst-logos">
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-uniandes"><img src="../assets/logo-uniandes.png" alt="Uniandes"></div>
+        <div><div class="inst-name-w">UNIANDES</div><div class="inst-sub-w">Maestr&iacute;a MIAD</div></div>
+      </div>
+      <div class="inst-divider"></div>
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-st"><img src="../assets/logo-servicetitan.png" alt="ServiceTitan"></div>
+        <div><div class="inst-name-w">ServiceTitan</div><div class="inst-sub-w">Product, FMA</div></div>
+      </div>
+    </div>
+    <div>
+      <a href="https://github.com/mbayonal/fma-adoption-intelligence" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app" target="_blank" rel="noopener">Prototipo</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

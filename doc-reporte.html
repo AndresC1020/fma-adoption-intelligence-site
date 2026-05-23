@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMA Adoption Intelligence — Reporte experimentos E2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .badge-red  { background:#FEE2E2; color:#DC2626; }
+    .tbl-ok     { color:#059669; font-weight:600; }
+    .tbl-fail   { color:#DC2626; font-weight:600; }
+    .tbl-warn   { color:#B45309; font-weight:600; }
+
+    .iter-block {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:var(--r); padding:24px 28px; margin-bottom:18px;
+      box-shadow:var(--shadow); max-width:960px;
+    }
+    .iter-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .iter-num {
+      min-width:28px; height:28px; border-radius:50%;
+      background:var(--acc); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; font-weight:700; flex-shrink:0;
+    }
+    .iter-title  { font-size:15px; font-weight:600; color:var(--text); }
+    .iter-label  { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--faint); margin:14px 0 5px; }
+
+    .shap-case {
+      background:var(--bg); border:1px solid var(--border);
+      border-radius:8px; padding:18px 20px; margin-bottom:12px;
+    }
+    .shap-case-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .shap-tag-ret   { background:#ECFDF5; color:#059669; font-size:11px; font-weight:700; padding:3px 9px; border-radius:4px; }
+    .shap-tag-aban  { background:#FEE2E2; color:#DC2626; font-size:11px; font-weight:700; padding:3px 9px; border-radius:4px; }
+    .shap-tag-mix   { background:#FEF9C3; color:#92400E; font-size:11px; font-weight:700; padding:3px 9px; border-radius:4px; }
+    .shap-factor { font-size:13px; color:var(--text); margin-bottom:4px; padding-left:14px; position:relative; }
+    .shap-factor::before { content:'–'; position:absolute; left:0; color:var(--faint); }
+    .shap-reading {
+      font-size:13px; color:var(--muted); margin-top:8px;
+      padding:10px 14px; background:var(--white); border-radius:6px;
+      border-left:3px solid var(--border);
+    }
+    .tbl-wrap { overflow-x:auto; margin-bottom:22px; }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="site-sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-name"><span class="sidebar-brand-dot"></span>FMA Adoption Intelligence</div>
+    <div class="sidebar-brand-sub">Maestría MIAD &nbsp;&middot;&nbsp; Uniandes</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Principal</span>
+      <a href="index.html" class="sidebar-link">Inicio</a>
+      <a href="demo.html" class="sidebar-link">Demo</a>
+      <a href="evaluacion.html" class="sidebar-link">Evaluación</a>
+      <a href="presentacion.html" class="sidebar-link">Presentación</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Documentación</span>
+      <a href="documentacion.html" class="sidebar-link sidebar-sub">Arquitectura del pipeline</a>
+      <a href="doc-modelo.html" class="sidebar-link sidebar-sub">Modelo predictivo</a>
+      <a href="doc-manual.html" class="sidebar-link sidebar-sub">Manual de usuario</a>
+      <a href="doc-tecnica.html" class="sidebar-link sidebar-sub">Documentación técnica</a>
+      <a href="doc-reporte.html" class="sidebar-link sidebar-sub active">Reporte experimentos E2</a>
+      <a href="doc-codigo.html" class="sidebar-link sidebar-sub">Código fuente</a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="site-main">
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="wrap">
+    <div class="sec-tag">R4b — Entrega 2</div>
+    <h1>Reporte de selección y parametrización de modelos</h1>
+    <p>Documentación completa del proceso experimental: alternativas evaluadas, supuestos verificados, métricas comparativas, análisis de overfitting, validación a nivel tenant e interpretabilidad SHAP.</p>
+  </div>
+</div>
+
+<!-- ── 0. RESUMEN ── -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Resumen ejecutivo</div>
+    <h2>Resultados principales</h2>
+    <p class="sec-desc">Cuatro modelos bajo el mismo protocolo experimental sobre una muestra exploratoria de 140 técnicos (train n=84 / validación n=56), con partición out-of-time en febrero 2026. Random Forest es seleccionado como modelo principal por mayor F1-score en validación y compatibilidad con SHAP TreeExplainer.</p>
+
+    <div class="metrics-row" style="max-width:820px;margin-bottom:28px;">
+      <div class="metric"><div class="metric-val">0.829</div><div class="metric-lbl">AUC-ROC (RF)</div></div>
+      <div class="metric"><div class="metric-val">0.82</div><div class="metric-lbl">F1-score (RF)</div></div>
+      <div class="metric"><div class="metric-val">0.78</div><div class="metric-lbl">Sensibilidad (RF)</div></div>
+      <div class="metric"><div class="metric-val">0.86</div><div class="metric-lbl">Precisión (RF)</div></div>
+      <div class="metric"><div class="metric-val">0.576</div><div class="metric-lbl">Pearson score-tenant</div></div>
+      <div class="metric"><div class="metric-val">78.6 pp</div><div class="metric-lbl">Retención Q4 – Q1</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:820px;">
+      <div class="comp-card">
+        <div class="comp-num green">10</div>
+        <div class="comp-lbl" style="margin-top:6px;font-size:13px;font-weight:600;color:var(--text);">Requerimientos cumplen</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5;">De los 12 criterios evaluados en la Entrega 2, 10 superan los umbrales definidos en la rúbrica.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-num red">1</div>
+        <div class="comp-lbl" style="margin-top:6px;font-size:13px;font-weight:600;color:var(--text);">No cumple — R11</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5;">Delta AUC train-validación = 16.8 pp, por encima del umbral de 5 pp. Causa: muestra de entrenamiento reducida (n=84). Plan correctivo documentado para Q3-Q4 2026.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-num amber">1</div>
+        <div class="comp-lbl" style="margin-top:6px;font-size:13px;font-weight:600;color:var(--text);">Pendiente — R1</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5;">Requiere cruzar el score agregado con los tenants en estado de migración estancada. Los datos existen en el feature store; la validación no se realizó en el plazo de la Entrega 2.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 1. COHERENCIA MODELOS-REQUERIMIENTOS ── -->
+<section>
+  <div class="wrap">
+    <div class="sec-tag">Sección 1</div>
+    <h2>Coherencia entre modelos, análisis y requerimientos</h2>
+    <p class="doc-p">El proyecto responde tres preguntas analíticas en capas secuenciales: cada capa consume los resultados de la anterior y los transforma en entradas para la siguiente. La variable objetivo es binaria: el técnico registra al menos 15 días activos en FMA durante los 60 días posteriores a la ventana de observación (label_retained = 1) o no (label_retained = 0).</p>
+
+    <h3 class="doc-h3">Tabla 1. Mapeo de capas analíticas</h3>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:820px;">
+        <thead>
+          <tr>
+            <th>Pregunta analítica</th>
+            <th>Capa</th>
+            <th>Métodos</th>
+            <th>Requerimientos</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>¿Qué características distinguen a un técnico que adopta FMA de uno que la abandona?</td>
+            <td>Descriptiva</td>
+            <td>Pruebas t de Student y chi cuadrado; K-Means</td>
+            <td>R2</td>
+          </tr>
+          <tr>
+            <td>¿Qué técnicos están en riesgo de abandonar FMA en los próximos 90 días?</td>
+            <td>Predictiva</td>
+            <td>Regresión Logística, Random Forest, XGBoost, AdaBoost; validación out-of-time</td>
+            <td>R1, R3, R5–R9, R10, R11, R12, R13</td>
+          </tr>
+          <tr>
+            <td>¿Qué acciones maximizan la retención y qué segmentos de tenant priorizar?</td>
+            <td>Prescriptiva</td>
+            <td>SHAP sobre modelo principal; segmentación por cuartiles y reglas de negocio</td>
+            <td>R4, R14.2, R14.3</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="doc-p">La integración secuencial garantiza coherencia interna: los factores que el análisis descriptivo identifica como discriminantes son los mismos que el modelo aprende a ponderar, y los mismos que SHAP devuelve como determinantes del riesgo individual. Un técnico que aparece como alto riesgo en la vista predictiva lo hace por razones consistentes con los patrones descriptivos, lo que fortalece la confianza del equipo de Producto en las alertas del sistema.</p>
+
+    <h3 class="doc-h3">Tabla 2. Trazabilidad de requerimientos — capa, método y umbral</h3>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:900px;">
+        <thead>
+          <tr><th>ID</th><th>Requerimiento</th><th>Capa</th><th>Método</th><th>Umbral</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>R2</td><td>≥5 factores diferenciadores con significancia estadística</td><td>Descriptiva</td><td>Pruebas t y chi cuadrado</td><td>≥5 factores</td></tr>
+          <tr><td>R1</td><td>≥70% de clientes con migración estancada identificados como alto riesgo</td><td>Predictiva</td><td>Score agregado por tenant</td><td>≥70%</td></tr>
+          <tr><td>R3</td><td>Diferencia de retención Q4–Q1 ≥10 pp</td><td>Predictiva</td><td>Cuartiles del score agregado</td><td>≥10 pp</td></tr>
+          <tr><td>R5</td><td>AUC en validación ≥0.70</td><td>Predictiva</td><td>Random Forest</td><td>≥0.70</td></tr>
+          <tr><td>R6</td><td>Correlación score agregado vs. retención real ≥0.50</td><td>Predictiva</td><td>Pearson y Spearman</td><td>≥0.50</td></tr>
+          <tr><td>R7</td><td>Recall clase abandono ≥0.70</td><td>Predictiva</td><td>Random Forest</td><td>≥0.70</td></tr>
+          <tr><td>R8</td><td>Precisión ≥0.60</td><td>Predictiva</td><td>Random Forest</td><td>≥0.60</td></tr>
+          <tr><td>R9</td><td>F1-score ≥0.65</td><td>Predictiva</td><td>Random Forest</td><td>≥0.65</td></tr>
+          <tr><td>R10</td><td>Interpretabilidad individual: top-10 global + 3 factores por técnico</td><td>Predictiva</td><td>SHAP TreeExplainer sobre RF</td><td>Top-10 + 3 factores/técnico</td></tr>
+          <tr><td>R11</td><td>Delta AUC train–validación ≤5 pp</td><td>Predictiva</td><td>RF train vs. val</td><td>≤5 pp</td></tr>
+          <tr><td>R12</td><td>Tabla comparativa ≥3 modelos</td><td>Predictiva</td><td>LR, RF, XGBoost, AdaBoost</td><td>≥3 modelos</td></tr>
+          <tr><td>R13</td><td>Pipeline completo ≤10 minutos</td><td>Predictiva</td><td>Medición cronometrada</td><td>≤10 min</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── 2. ALTERNATIVAS DE MODELOS ── -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Sección 2</div>
+    <h2>Alternativas de modelos y plan de pruebas</h2>
+    <p class="doc-p">Tres características del conjunto de datos condicionaron las decisiones de diseño: (1) tamaño reducido del conjunto de entrenamiento (n=84), que descarta redes neuronales y métodos con muchos hiperparámetros libres; (2) naturaleza mixta de las variables (conteos, proporciones, días de actividad, categorías), que favorece métodos sin supuestos distribucionales; (3) desbalance moderado de clases (4:1 entre retenidos y abandonos), que obliga a elegir métricas robustas al desbalance.</p>
+
+    <h3 class="doc-h3">Capa descriptiva — Tabla 3</h3>
+    <p class="doc-p">Se compararon dos enfoques: comparación estadística entre grupos (método principal para R2) y clustering K-Means (método complementario para segmentación prescriptiva R4).</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px;margin-bottom:24px;">
+      <div class="card">
+        <div class="card-badge">R2</div>
+        <h3>Comparación estadística entre grupos</h3>
+        <p><strong>Paradigma:</strong> Estadístico supervisado.<br>
+        <strong>Interpretabilidad:</strong> Alta. Valores p e intervalos de confianza directamente comunicables al equipo de Producto.<br>
+        <strong>Adecuación:</strong> Alta. No requiere hiperparámetros, funciona con n=96, separa variables numéricas de categóricas con pruebas distintas (t de Student / chi cuadrado).<br>
+        <strong>Decision:</strong> <span class="badge badge-green">Principal — R2</span></p>
+      </div>
+      <div class="card">
+        <div class="card-badge">R4</div>
+        <h3>Clustering no supervisado (K-Means)</h3>
+        <p><strong>Paradigma:</strong> No supervisado.<br>
+        <strong>Interpretabilidad:</strong> Media. Las etiquetas de cluster requieren interpretación adicional para traducirlas a categorías de negocio.<br>
+        <strong>Adecuación:</strong> Media. Sensible a la escala de variables y al valor de k. Con n pequeño los clusters pueden no ser estables ante pequeñas variaciones.<br>
+        <strong>Decisión:</strong> <span class="badge badge-amber">Complementario — R4</span></p>
+      </div>
+    </div>
+
+    <h3 class="doc-h3">Capa predictiva — Tabla 4</h3>
+    <p class="doc-p">Cuatro modelos que representan tres paradigmas distintos: modelo paramétrico lineal (Regresión Logística), ensamble de bagging (Random Forest) y dos variantes de boosting (XGBoost con regularización L1/L2, AdaBoost sin regularización formal). Todos entrenados con las mismas 20 variables, la misma partición out-of-time y RANDOM_STATE = 42, para que las diferencias en métricas sean atribuibles a la arquitectura del modelo y no a variaciones del procedimiento.</p>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:960px;margin-bottom:24px;">
+      <div class="card">
+        <div class="card-badge">LR</div>
+        <h3>Regresión Logística con regularización L1</h3>
+        <p><strong>Paradigma:</strong> Paramétrico lineal.<br>
+        <strong>Capacidad no lineal:</strong> Ninguna. Asume que el logit es función aditiva de las variables.<br>
+        <strong>Estabilidad n=84:</strong> Baja. EPV = 0.8 eventos por variable, muy por debajo del umbral recomendado de 10. La regularización L1 mitiga pero no elimina la inestabilidad.<br>
+        <strong>Interpretabilidad:</strong> Alta. Coeficientes directamente interpretables; Lasso elimina variables irrelevantes; sin necesidad de SHAP.<br>
+        <strong>Decisión:</strong> <span class="badge badge-gray">Baseline</span></p>
+      </div>
+      <div class="card">
+        <div class="card-badge">RF</div>
+        <h3>Random Forest (bagging)</h3>
+        <p><strong>Paradigma:</strong> No paramétrico, bagging.<br>
+        <strong>Capacidad no lineal:</strong> Captura interacciones entre variables sin supuestos distribucionales. Robusto ante outliers y variables irrelevantes.<br>
+        <strong>Estabilidad n=84:</strong> Media. Puede sobreajustar en muestras pequeñas (Delta AUC train-val = 16.8 pp); controlado con max_depth y min_samples_leaf.<br>
+        <strong>Interpretabilidad:</strong> Alta. Compatible con SHAP TreeExplainer (exacto, no aproximado).<br>
+        <strong>Decisión:</strong> <span class="badge badge-green">Principal</span></p>
+      </div>
+      <div class="card">
+        <div class="card-badge">XGB</div>
+        <h3>XGBoost (boosting regularizado)</h3>
+        <p><strong>Paradigma:</strong> No paramétrico, boosting con regularización L1/L2.<br>
+        <strong>Capacidad no lineal:</strong> Manejo nativo de valores faltantes; regularización explícita sobre los pesos de los árboles.<br>
+        <strong>Estabilidad n=84:</strong> Media-alta. La regularización es esperada para reducir la brecha train-val con muestra expandida. Con n=84 el gap es de 18.6 pp.<br>
+        <strong>Interpretabilidad:</strong> Media. Compatible con SHAP, pero mayor número de hiperparámetros hace la explicación más sensible a la configuración.<br>
+        <strong>Decisión:</strong> <span class="badge badge-gray">Alternativo boosting</span></p>
+      </div>
+      <div class="card">
+        <div class="card-badge">ADA</div>
+        <h3>AdaBoost (boosting básico)</h3>
+        <p><strong>Paradigma:</strong> No paramétrico, boosting secuencial sobre decision stumps sin regularización formal.<br>
+        <strong>Capacidad no lineal:</strong> Sin regularización; más sensible al ruido y outliers. Delta AUC = 18.4 pp.<br>
+        <strong>Estabilidad n=84:</strong> Media-baja. Mayor riesgo de inestabilidad ante perturbaciones en los datos.<br>
+        <strong>Interpretabilidad:</strong> Media. Interpretación a través del estimador base; no compatible nativamente con SHAP TreeExplainer.<br>
+        <strong>Decisión:</strong> <span class="badge badge-gray">Alternativo boosting básico</span></p>
+      </div>
+    </div>
+
+    <h3 class="doc-h3">Capa prescriptiva — Tabla 5</h3>
+    <p class="doc-p">Se evaluaron tres enfoques para generar recomendaciones accionables. SHAP sobre el modelo principal produce explicaciones a nivel de técnico individual (exactas para modelos de árbol) y alimenta la vista prescriptiva con etiquetas de acción diferenciadas. La segmentación por reglas de negocio permite priorizar la cartera de tenants con criterios que el equipo ya reconoce sin requerir comprensión del mecanismo del Random Forest.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:960px;">
+      <div class="card">
+        <div class="card-badge">R4</div>
+        <h3>SHAP sobre el modelo principal</h3>
+        <p>Explicabilidad local por técnico. Los 3 factores SHAP dominantes determinan el tipo de intervención específica. TreeExplainer integrado en el pipeline; tiempo de cómputo incluido en los 21 s totales.<br><span class="badge badge-green" style="margin-top:10px;display:inline-flex;">Principal — R4, R14.2</span></p>
+      </div>
+      <div class="card">
+        <div class="card-badge">R4</div>
+        <h3>Segmentación por reglas de negocio</h3>
+        <p>Por cuartil de tenant. Prioriza la cartera pero no diferencia el tipo de intervención a nivel individual. Independiente del modelo; reglas fáciles de auditar y explicar al equipo de Customer Success.<br><span class="badge badge-green" style="margin-top:10px;display:inline-flex;">Complementaria — R4, R14.3</span></p>
+      </div>
+      <div class="card">
+        <div class="card-badge"></div>
+        <h3>Optimización del portafolio bajo restricciones</h3>
+        <p>Requiere parámetros operativos (costo por intervención, capacidad del equipo CS) no disponibles en esta fase. Maximiza retención esperada dentro del número de llamadas posibles por semana.<br><span class="badge badge-gray" style="margin-top:10px;display:inline-flex;">Aspiracional — trabajo futuro</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 3. SUPUESTOS Y PREPROCESAMIENTO ── -->
+<section>
+  <div class="wrap">
+    <div class="sec-tag">Sección 3</div>
+    <h2>Verificación de supuestos y preprocesamiento</h2>
+    <p class="doc-p">Los modelos basados en árboles (RF, XGBoost, AdaBoost) no imponen supuestos distribucionales y son robustos ante no-linealidades. La Regresión Logística requiere verificación formal de cinco supuestos: variable respuesta binaria (satisfecho por definición), linealidad del logit (verificado con prueba Box-Tidwell, aceptable con la advertencia de que conteos presentan asimetría), independencia de observaciones (satisfecho por diseño temporal), tamaño de muestra (no satisfecho: EPV = 0.8, de ahí la designación como baseline) y ausencia de multicolinealidad (resuelto mediante VIF iterativo).</p>
+
+    <h3 class="doc-h3">Tabla 6. VIF iterativo — variables numéricas (8 de 15 sobreviven al umbral 10)</h3>
+    <p class="doc-p">Se aplicó VIF iterativo: calcular VIF de todas las variables, eliminar la variable con VIF más alto si supera el umbral de 10, recomputar, y repetir hasta que todas las restantes tengan VIF ≤ 10. Las variables con VIF = ∞ presentaban correlación perfecta con otra variable del conjunto.</p>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:680px;">
+        <thead>
+          <tr><th>Variable</th><th>VIF inicial</th><th>VIF final</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>obs_events_late_half_w14</code></td><td>32.92</td><td>5.18</td><td class="tbl-ok">Sobrevive</td></tr>
+          <tr><td><code>obs_active_days_ratio_w14</code></td><td>∞</td><td>—</td><td class="tbl-fail">Eliminada</td></tr>
+          <tr><td><code>obs_sessions_count_w14</code></td><td>5.91</td><td>3.77</td><td class="tbl-ok">Sobrevive</td></tr>
+          <tr><td><code>obs_active_days_w14</code></td><td>∞</td><td>—</td><td class="tbl-fail">Eliminada</td></tr>
+          <tr><td><code>obs_active_days_late_half_w14</code></td><td>∞</td><td>—</td><td class="tbl-fail">Eliminada</td></tr>
+          <tr><td><code>obs_time_count_w14</code></td><td>4.09</td><td>3.91</td><td class="tbl-ok">Sobrevive</td></tr>
+          <tr><td><code>obs_events_count_w14</code></td><td>39.56</td><td>—</td><td class="tbl-fail">Eliminada</td></tr>
+          <tr><td><code>obs_events_count_w14_log</code></td><td>59.42</td><td>—</td><td class="tbl-fail">Eliminada</td></tr>
+          <tr><td><code>obs_events_growth_ratio_w14</code></td><td>4.24</td><td>2.08</td><td class="tbl-ok">Sobrevive</td></tr>
+          <tr><td><code>obs_active_days_early_half_w14</code></td><td>∞</td><td>—</td><td class="tbl-fail">Eliminada</td></tr>
+          <tr><td><code>TECHNICIAN_LICENCES</code></td><td>3.45</td><td>1.56</td><td class="tbl-ok">Sobrevive</td></tr>
+          <tr><td><code>obs_job_close_out_count_w14</code></td><td>3.35</td><td>3.25</td><td class="tbl-ok">Sobrevive</td></tr>
+          <tr><td><code>obs_time_pct_w14</code></td><td>3.55</td><td>2.85</td><td class="tbl-ok">Sobrevive</td></tr>
+          <tr><td><code>tenant_technician_licenses_log</code></td><td>23.38</td><td>—</td><td class="tbl-fail">Eliminada</td></tr>
+          <tr><td><code>fma_penetration_30d</code></td><td>9.81</td><td>4.33</td><td class="tbl-ok">Sobrevive</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="notice" style="max-width:700px;margin-bottom:24px;">
+      <strong>Nota sobre el filtro iterativo:</strong> el enfoque de una sola pasada habría eliminado ambiguamente <code>fma_penetration_30d</code> (VIF inicial 9.81, al borde del umbral). El VIF iterativo la retiene correctamente porque al eliminar las variables de correlación perfecta, su VIF final cae a 4.33. Este cambio es documentado como aprendizaje en la Sección 9.
+    </div>
+
+    <h3 class="doc-h3">Tabla 7. Pipelines de preprocesamiento por modelo</h3>
+    <p class="doc-p">Todos los pipelines fueron implementados con la clase <code>Pipeline</code> de scikit-learn, asegurando que las transformaciones (escalado, encoding, VIF) se ajusten únicamente sobre el conjunto de entrenamiento y se apliquen sin reajuste sobre el conjunto de validación, eliminando leakage de información. Variables identificadoras (<code>TECHNICIAN_ID</code>, <code>TENANT_ID</code>, <code>first_session_date</code>) fueron excluidas de todos los modelos. SMOTE fue descartado porque con variables mixtas y n=84 generaría técnicos sintéticos con combinaciones incoherentes.</p>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:820px;">
+        <thead>
+          <tr><th>Modelo</th><th>Escalado numérico</th><th>One-Hot Encoding</th><th>Filtro VIF</th><th>Ajuste desbalance</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Regresión Logística</td><td>StandardScaler</td><td>Sí</td><td>Sí (umbral VIF &gt; 10)</td><td><code>class_weight='balanced'</code></td></tr>
+          <tr><td>Random Forest</td><td>No</td><td>Sí</td><td>No</td><td><code>class_weight='balanced'</code></td></tr>
+          <tr><td>XGBoost</td><td>No</td><td>Sí</td><td>No</td><td><code>scale_pos_weight=0.235</code></td></tr>
+          <tr><td>AdaBoost</td><td>No</td><td>Sí</td><td>No</td><td><code>class_weight='balanced'</code> sobre estimador base</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="doc-p">El escalado es necesario únicamente para Regresión Logística con penalización L1: sin escalar, variables en escalas grandes serían penalizadas desproporcionadamente. Para modelos de árbol, las particiones no son euclidianas y el escalado no tiene efecto.</p>
+  </div>
+</section>
+
+<!-- ── 4. VARIABLES Y PARTICIÓN ── -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Sección 4</div>
+    <h2>Selección de variables y partición out-of-time</h2>
+    <p class="doc-p">Se aplicaron tres métodos complementarios para la selección de las 20 variables finales: (1) filtro estadístico — información mutua para numéricas y chi cuadrado para categóricas; (2) importancia embebida de un Random Forest preliminar de 200 árboles sobre la totalidad de variables disponibles; (3) VIF iterativo para Regresión Logística únicamente. La puntuación combinada fue <strong>0.6 × RF_normalizado + 0.4 × MI_normalizado</strong>, priorizando la señal del modelo sobre el filtro univariado.</p>
+
+    <h3 class="doc-h3">Tabla 8. Top-10 variables por puntuación combinada (RF 60% + MI/chi² 40%)</h3>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:820px;">
+        <thead>
+          <tr><th>#</th><th>Variable</th><th>Tipo</th><th>RF Importance</th><th>MI / chi² norm.</th><th>Score combinado</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td><code>app_version_max</code></td><td>Categórica</td><td>0.1318</td><td>1.0000</td><td><strong>1.000</strong></td></tr>
+          <tr><td>2</td><td><code>obs_events_late_half_w14</code></td><td>Numérica</td><td>0.0870</td><td>0.0062</td><td>0.398</td></tr>
+          <tr><td>3</td><td><code>device_model_mode</code></td><td>Categórica</td><td>0.0196</td><td>0.7192</td><td>0.377</td></tr>
+          <tr><td>4</td><td><code>obs_active_days_ratio_w14</code></td><td>Numérica</td><td>0.0801</td><td>0.0067</td><td>0.367</td></tr>
+          <tr><td>5</td><td><code>obs_sessions_count_w14</code></td><td>Numérica</td><td>0.0760</td><td>0.0051</td><td>0.348</td></tr>
+          <tr><td>6</td><td><code>obs_active_days_w14</code></td><td>Numérica</td><td>0.0703</td><td>0.0069</td><td>0.323</td></tr>
+          <tr><td>7</td><td><code>obs_active_days_late_half_w14</code></td><td>Numérica</td><td>0.0537</td><td>0.0066</td><td>0.247</td></tr>
+          <tr><td>8</td><td><code>obs_time_count_w14</code></td><td>Numérica</td><td>0.0490</td><td>0.0046</td><td>0.225</td></tr>
+          <tr><td>9</td><td><code>obs_events_count_w14</code></td><td>Numérica</td><td>0.0477</td><td>0.0045</td><td>0.219</td></tr>
+          <tr><td>10</td><td><code>obs_events_count_w14_log</code></td><td>Numérica</td><td>0.0422</td><td>0.0039</td><td>0.194</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="notice" style="max-width:820px;margin-bottom:24px;">
+      <strong>Coherencia con la vista descriptiva:</strong> <code>app_version_max</code> y <code>device_model_mode</code> lideran en chi² (1.000 y 0.719 respectivamente) porque diferentes versiones de la app y modelos de dispositivo están asociados con distintas tasas de retención: versiones antiguas o dispositivos con compatibilidad limitada degradan la experiencia y aumentan el abandono. <code>fma_penetration_30d</code> aparece en el top-15, confirmando la hipótesis del efecto social del anteproyecto.
+    </div>
+
+    <h3 class="doc-h3">Tabla 9. Estadísticas de los conjuntos de datos</h3>
+    <p class="doc-p">La partición out-of-time replica la condición de producción: el modelo se entrena exclusivamente con técnicos que iniciaron su uso de FMA antes del corte (percentil 60 de <code>first_session_date</code> = 2026-02-08) y se evalúa sobre técnicos posteriores. La partición k-fold aleatoria está descartada porque mezclaría técnicos de diferentes momentos temporales, produciendo fuga de información y estimaciones de desempeño optimistas que no reproducirían el rendimiento real en producción.</p>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:880px;">
+        <thead>
+          <tr><th>Conjunto</th><th>N</th><th>Fecha mínima</th><th>Fecha máxima</th><th>Retenidos (label=1)</th><th>Abandonos (label=0)</th><th>% retención</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Train</strong></td><td>84</td><td>2026-01-11</td><td>2026-02-08</td><td>68</td><td>16</td><td>81.0%</td></tr>
+          <tr><td><strong>Validación</strong></td><td>56</td><td>2026-02-09</td><td>2026-03-12</td><td>24</td><td>32</td><td>42.9%</td></tr>
+          <tr><td><strong>Total</strong></td><td>140</td><td>2026-01-11</td><td>2026-03-12</td><td>92</td><td>48</td><td>65.7%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="notice-warn" style="max-width:820px;">
+      <strong>Diferencia de retención entre conjuntos:</strong> train (81%) vs. validación (43%) refleja que los técnicos más recientes muestran tasas de retención menores, posiblemente adoptantes tardíos con menor motivación inicial. Un análisis de sub-muestreo de validación al 81% de retención mediante bootstrap (x50) muestra que más del 95% del Delta AUC se atribuye al tamaño de la muestra y menos del 5% a distribution shift entre cohortes.
+    </div>
+  </div>
+</section>
+
+<!-- ── 5. MÉTRICAS COMPARATIVAS ── -->
+<section>
+  <div class="wrap">
+    <div class="sec-tag">Sección 5</div>
+    <h2>Resultados: métricas comparativas en validación</h2>
+    <p class="doc-p">Todos los modelos se entrenaron con las mismas 20 variables, la misma partición out-of-time y RANDOM_STATE = 42. El ajuste de hiperparámetros usó RandomizedSearchCV con TimeSeriesSplit(n_splits=3) como esquema de validación cruzada interna sobre el conjunto de entrenamiento, con <code>scoring='roc_auc'</code> como criterio de selección.</p>
+
+    <h3 class="doc-h3">Tabla 15. Métricas en validación por modelo (threshold = 0.5)</h3>
+    <p class="doc-p">Las métricas de recall, precisión y F1 corresponden a la clase abandono (label=0), que es la clase de interés operativo. AUC-ROC y Brier Score son independientes del umbral.</p>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:900px;">
+        <thead>
+          <tr><th>Modelo</th><th>AUC-ROC</th><th>Recall</th><th>Precisión</th><th>F1</th><th>Accuracy</th><th>Log-loss</th><th>Brier</th><th>Cumple R5/R7/R8/R9</th></tr>
+        </thead>
+        <tbody>
+          <tr style="background:#f0f8f0;">
+            <td><strong>RF (principal)</strong></td>
+            <td><strong>0.829</strong></td>
+            <td><strong>0.78</strong></td>
+            <td><strong>0.86</strong></td>
+            <td><strong>0.82</strong></td>
+            <td>0.80</td>
+            <td>0.583</td>
+            <td>0.184</td>
+            <td class="tbl-ok">Todos</td>
+          </tr>
+          <tr>
+            <td>LR (baseline)</td>
+            <td>0.861</td>
+            <td>0.72</td>
+            <td>0.79</td>
+            <td>0.75</td>
+            <td>0.73</td>
+            <td>0.575</td>
+            <td>0.179</td>
+            <td class="tbl-ok">Todos</td>
+          </tr>
+          <tr>
+            <td>AdaBoost</td>
+            <td>0.816</td>
+            <td>0.50</td>
+            <td>0.94</td>
+            <td>0.65</td>
+            <td>0.70</td>
+            <td>0.619</td>
+            <td>0.214</td>
+            <td class="tbl-warn">Recall no cumple R7</td>
+          </tr>
+          <tr>
+            <td>XGBoost</td>
+            <td>0.784</td>
+            <td>0.78</td>
+            <td>0.78</td>
+            <td>0.78</td>
+            <td>0.75</td>
+            <td>0.547</td>
+            <td>0.181</td>
+            <td class="tbl-ok">Todos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="doc-h3">Tabla 14. Umbrales operativos para Random Forest</h3>
+    <p class="doc-p">El umbral por defecto de 0.5 y el threshold F1-óptimo producen métricas idénticas en este modelo, lo que indica buena calibración en la región media del score. En producción se recomienda el threshold F1-óptimo (0.48) por alineación con el criterio de aceptación R9.</p>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:560px;">
+        <thead>
+          <tr><th>Criterio</th><th>Threshold</th><th>Recall</th><th>Precisión</th><th>F1</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Default (0.5)</td><td>0.50</td><td>0.78</td><td>0.86</td><td>0.82</td></tr>
+          <tr style="background:#f0f8f0;"><td><strong>F1-óptimo (recomendado)</strong></td><td><strong>0.48</strong></td><td>0.78</td><td>0.86</td><td><strong>0.82</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="notice" style="max-width:860px;">
+      <strong>Justificación de la selección de Random Forest:</strong> aunque LR tiene la mayor AUC-ROC en validación (0.861 vs. 0.829), su threshold F1-óptimo se desplaza a 0.95, evidenciando calibración asimétrica: LR sub-estima sistemáticamente el riesgo en la región media-baja del score. RF mantiene F1 = 0.82 al threshold default, es compatible con SHAP TreeExplainer (explicaciones exactas para árboles, no aproximadas) y tiene la mayor CV-AUC interna (0.963), la más alta entre todos los modelos, con menor sensibilidad a la elección de hiperparámetros. XGBoost queda como alternativa preferida para el escenario de muestra expandida, donde su regularización explícita debería cerrar la brecha de estabilidad temporal más efectivamente.
+    </div>
+  </div>
+</section>
+
+<!-- ── 6. ESTABILIDAD TEMPORAL ── -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Sección 6 — R11</div>
+    <h2>Estabilidad temporal: análisis de sobreajuste</h2>
+    <p class="doc-p">R11 exige que la diferencia entre el AUC en entrenamiento y el AUC en validación sea de 5 puntos porcentuales o menos, como garantía de que el modelo generaliza a datos no vistos con estabilidad razonable. Ningún modelo cumple este criterio en la muestra disponible.</p>
+
+    <h3 class="doc-h3">Tabla 16. AUC train vs. validación y Delta por modelo</h3>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:660px;">
+        <thead>
+          <tr><th>Modelo</th><th>AUC Train</th><th>AUC Validación</th><th>Delta (pp)</th><th>R11 (≤5 pp)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Regresión Logística</td><td>1.000</td><td>0.861</td><td>13.9</td><td class="tbl-fail">No cumple</td></tr>
+          <tr style="background:#fff8f8;"><td><strong>Random Forest</strong></td><td>0.997</td><td>0.829</td><td><strong>16.8</strong></td><td class="tbl-fail">No cumple</td></tr>
+          <tr><td>AdaBoost</td><td>1.000</td><td>0.816</td><td>18.4</td><td class="tbl-fail">No cumple</td></tr>
+          <tr><td>XGBoost</td><td>0.970</td><td>0.784</td><td>18.6</td><td class="tbl-fail">No cumple</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="notice-warn" style="max-width:820px;margin-bottom:20px;">
+      <strong>Diagnóstico de la causa raíz:</strong> la brecha no es producto de una elección errónea de hiperparámetros. La causa principal es el tamaño reducido del conjunto de entrenamiento: n = 84 observaciones con 16 eventos de abandono produce un EPV (eventos por variable) = 0.9, muy por debajo del umbral recomendado de 10 en la literatura. Las curvas de aprendizaje confirman que la curva de validación aún tiene pendiente positiva al usar el 100% del train, lo que indica que más datos mejorarían el desempeño. La descomposición por sub-muestreo (bootstrap x50) atribuye más del 95% del Delta AUC al tamaño de la muestra y menos del 5% al distribution shift entre cohortes.
+    </div>
+
+    <div class="notice" style="max-width:820px;">
+      <strong>Plan correctivo (Q3-Q4 2026):</strong> cuando se disponga de la muestra completa de técnicos activos (~2.000 a 5.000 técnicos con ventana de etiquetado completa), se espera que el Delta AUC baje a 10 pp como mínimo. Para alcanzar el umbral de 5 pp se propone adicionalmente: (1) aumentar <code>min_samples_leaf</code> en RF para regularización más agresiva; (2) aplicar regularización más fuerte en XGBoost (<code>reg_lambda=20</code>, <code>max_depth=5</code>); (3) considerar una ventana de observación extendida a 21 días para capturar más comportamiento.
+    </div>
+  </div>
+</section>
+
+<!-- ── 7. VALIDACIÓN TENANT ── -->
+<section>
+  <div class="wrap">
+    <div class="sec-tag">Sección 7 — R6, R3</div>
+    <h2>Validación del score a nivel tenant</h2>
+    <p class="doc-p">Una vez obtenidas las probabilidades individuales de retención de cada técnico en el conjunto de validación, se agregan a nivel tenant mediante el promedio (<code>tenant_score_mean</code>). Este score agregado se valida contra la tasa de retención real observada (proporción de técnicos del tenant con <code>label_retained = 1</code>) sobre los 54 tenants del conjunto de validación.</p>
+
+    <h3 class="doc-h3">Tabla 17. Correlación entre score agregado y retención real (R6)</h3>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:620px;">
+        <thead>
+          <tr><th>Métrica</th><th>Valor</th><th>p-valor</th><th>Umbral R6</th><th>Cumple</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Correlación de Pearson (r)</td>
+            <td><strong>0.576</strong></td>
+            <td>&lt; 0.001</td>
+            <td>≥ 0.50</td>
+            <td class="tbl-ok">Sí</td>
+          </tr>
+          <tr>
+            <td>Correlación de Spearman (rho)</td>
+            <td><strong>0.607</strong></td>
+            <td>&lt; 0.001</td>
+            <td>≥ 0.50</td>
+            <td class="tbl-ok">Sí</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="doc-p">La similitud entre los coeficientes de Pearson y Spearman indica que la relación es aproximadamente lineal y no está dominada por outliers. Ambas correlaciones superan el umbral de 0.50 con alta significancia estadística, validando que el score agregado tiene poder discriminativo real sobre la cartera de clientes.</p>
+
+    <h3 class="doc-h3">Tabla 18. Tasa de retención real por cuartil del score agregado (R3)</h3>
+    <p class="doc-p">Los 54 tenants del conjunto de validación se dividieron en cuartiles según su <code>tenant_score_mean</code>. El cuartil Q1 agrupa los tenants con mayor riesgo predicho; Q4 agrupa los de menor riesgo.</p>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:520px;">
+        <thead>
+          <tr><th>Cuartil</th><th>N tenants</th><th>Retención real</th></tr>
+        </thead>
+        <tbody>
+          <tr style="background:#fff8f8;"><td><strong>Q1 — alto riesgo</strong></td><td>14</td><td class="tbl-fail"><strong>0.0%</strong></td></tr>
+          <tr><td>Q2</td><td>13</td><td>34.6%</td></tr>
+          <tr><td>Q3</td><td>13</td><td>53.8%</td></tr>
+          <tr style="background:#f0f8f0;"><td><strong>Q4 — bajo riesgo</strong></td><td>14</td><td class="tbl-ok"><strong>78.6%</strong></td></tr>
+          <tr style="background:var(--acc-light);"><td colspan="2"><strong>Diferencia Q4 − Q1</strong></td><td><strong>78.6 pp</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="notice" style="max-width:680px;">
+      <strong>Resultado vs. umbral R3 (≥10 pp):</strong> la diferencia de 78.6 puntos porcentuales supera ampliamente el umbral de R3. Los tenants clasificados como "alto riesgo" tienen retención real de 0%, mientras que los de "bajo riesgo" alcanzan 79%. Esto valida que el score agregado tiene poder de segmentación operativo real para priorizar la cartera de Customer Success.
+    </div>
+  </div>
+</section>
+
+<!-- ── 8. RENDIMIENTO COMPUTACIONAL ── -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Sección 8 — R13</div>
+    <h2>Rendimiento computacional del pipeline</h2>
+    <p class="doc-p">El pipeline completo ejecuta end-to-end sobre la muestra disponible (140 técnicos, 707.469 eventos FullStory) en aproximadamente 21 segundos, cumpliendo holgadamente el umbral de 10 minutos definido en R13. El tiempo registrado corresponde al sample exploratorio; la escala con la muestra de producción se detalla a continuación.</p>
+
+    <h3 class="doc-h3">Tabla 19. Tiempos por etapa del pipeline end-to-end</h3>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:600px;">
+        <thead>
+          <tr><th>Etapa</th><th>Tiempo</th><th>Acumulado</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Carga y limpieza de datos (Fase 1)</td><td>~3 s</td><td>3 s</td></tr>
+          <tr><td>Construcción del feature store (Fase 2)</td><td>~5 s</td><td>8 s</td></tr>
+          <tr><td>Selección de variables</td><td>~1 s</td><td>9 s</td></tr>
+          <tr><td>Tuning Regresión Logística (7 iter.)</td><td>1.8 s</td><td>~11 s</td></tr>
+          <tr><td>Tuning Random Forest (50 iter.)</td><td>4.3 s</td><td>~15 s</td></tr>
+          <tr><td>Tuning XGBoost (50 iter.)</td><td>0.5 s</td><td>~16 s</td></tr>
+          <tr><td>Tuning AdaBoost (50 iter.)</td><td>1.0 s</td><td>~17 s</td></tr>
+          <tr><td>Análisis estadísticos + figuras diagnósticas</td><td>~3 s</td><td>~20 s</td></tr>
+          <tr><td>Agregación a tenant + SHAP TreeExplainer</td><td>~1 s</td><td>~21 s</td></tr>
+          <tr style="background:var(--acc-light);"><td><strong>Total pipeline completo</strong></td><td><strong>~21 s</strong></td><td><strong>~0.4 min</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="notice" style="max-width:700px;">
+      <strong>Proyección a producción:</strong> la población real es de ~172.000 técnicos activos con datos de dispositivo. El tiempo escalará principalmente con la etapa de construcción del feature store (O(n_técnicos × n_eventos)). Con la muestra expandida de ~5.000 técnicos se estima un tiempo de 5–8 minutos para la etapa de features, sin afectar las etapas de tuning (que operan sobre el dataset ya construido). El umbral de 10 minutos es alcanzable para el pipeline de inferencia en producción (carga del modelo serializado + predicción), que opera en segundos.
+    </div>
+  </div>
+</section>
+
+<!-- ── 9. ITERACIONES CRÍTICAS ── -->
+<section>
+  <div class="wrap">
+    <div class="sec-tag">Sección 9</div>
+    <h2>Iteraciones críticas: diseñar, probar, ajustar</h2>
+    <p class="doc-p">El plan original prescribía un proceso lineal: construir feature store, entrenar 4 modelos, comparar. En la práctica fueron necesarias tres iteraciones que cambiaron el resultado de manera material. Se documentan aquí como parte del proceso de trazabilidad y como aprendizajes transferibles.</p>
+
+    <div class="iter-block">
+      <div class="iter-header">
+        <div class="iter-num">1</div>
+        <div class="iter-title">Eliminación de features con leakage temporal</div>
+      </div>
+      <p class="doc-p" style="margin-bottom:10px;"><strong>Problema:</strong> se construyeron inicialmente features de trayectoria como <code>obs_events_w3_4</code> (eventos en días 14–27 desde la primera sesión), asumiendo una ventana de observación de 28 días. La ventana real configurada era de 14 días (<code>OBSERVATION_WINDOW_DAYS = 14</code>). Las features de "días 14–27" estaban fuera del corte T0 — leakage temporal directo.</p>
+      <div class="iter-label">AUC en validación con leakage (Tabla 22)</div>
+      <div class="tbl-wrap">
+        <table class="doc-table" style="max-width:480px;margin-bottom:12px;">
+          <thead><tr><th>Modelo</th><th>AUC val (iter. 1 — con leakage)</th></tr></thead>
+          <tbody>
+            <tr><td>Regresión Logística</td><td>0.966</td></tr>
+            <tr><td>Random Forest</td><td>0.976</td></tr>
+            <tr><td>XGBoost</td><td>0.967</td></tr>
+            <tr><td>AdaBoost</td><td>0.969</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="iter-label">AUC tras eliminar el leakage (Tabla 23)</div>
+      <div class="tbl-wrap">
+        <table class="doc-table" style="max-width:540px;margin-bottom:12px;">
+          <thead><tr><th>Modelo</th><th>AUC val (iter. 2 — sin leakage)</th><th>Delta vs iter. 1</th></tr></thead>
+          <tbody>
+            <tr><td>Regresión Logística</td><td>0.861</td><td class="tbl-fail">−10.5 pp</td></tr>
+            <tr><td>Random Forest</td><td>0.829</td><td class="tbl-fail">−14.7 pp</td></tr>
+            <tr><td>XGBoost</td><td>0.784</td><td class="tbl-fail">−18.3 pp</td></tr>
+            <tr><td>AdaBoost</td><td>0.816</td><td class="tbl-fail">−15.3 pp</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="doc-p" style="margin-bottom:0;"><strong>Corrección:</strong> las features de trayectoria se reescribieron dividiendo la ventana de T0 en dos mitades: <code>obs_events_early_half_w14</code> (días 0–6) y <code>obs_events_late_half_w14</code> (días 7–13). <strong>Aprendizaje:</strong> toda feature derivada del comportamiento debe pasar un test unitario que verifique que solo usa eventos con <code>days_since_first &lt;= OBSERVATION_WINDOW_DAYS - 1</code>. Implementado como tabla de validación en el pipeline.</p>
+    </div>
+
+    <div class="iter-block">
+      <div class="iter-header">
+        <div class="iter-num">2</div>
+        <div class="iter-title">Calibración del threshold de la etiqueta</div>
+      </div>
+      <p class="doc-p" style="margin-bottom:10px;"><strong>Problema:</strong> el umbral inicial <code>LABEL_ACTIVE_DAYS_THRESHOLD = 5</code> resultó poco discriminante con ventana de etiquetado de 60 días: cualquier técnico con actividad mínima superaba 5 días activos en 60, dejando la etiqueta con 78% de retención global y los modelos identificando abandonos ya en T0 (actividad casi nula).</p>
+      <p class="doc-p" style="margin-bottom:0;"><strong>Corrección:</strong> se elevó el umbral a 15 días activos (~25% de actividad sobre los 60 días), alineado con la mediana de días activos observada en el dataset (23 sobre 89, ~26%). La retención global cae a 66%, consistente con el 65.2% del documento original. El problema de clasificación se vuelve genuinamente discriminante. <strong>Aprendizaje:</strong> el threshold de la etiqueta es un hiperparámetro del problema, no una decisión menor. Debe fijarse a partir de un percentil empírico con interpretación de negocio.</p>
+    </div>
+
+    <div class="iter-block">
+      <div class="iter-header">
+        <div class="iter-num">3</div>
+        <div class="iter-title">VIF iterativo en lugar de umbral único</div>
+      </div>
+      <p class="doc-p" style="margin-bottom:10px;"><strong>Problema:</strong> el filtro VIF aplicado en una sola pasada eliminaba simultáneamente múltiples variables con VIF = ∞ por correlación perfecta, incluyendo candidatas válidas como <code>fma_penetration_30d</code> (VIF inicial 9.81, al borde del umbral de 10). La eliminación en bloque no identificaba el conjunto mínimo redundante.</p>
+      <p class="doc-p" style="margin-bottom:0;"><strong>Corrección:</strong> VIF iterativo — eliminar la variable con VIF más alto, recomputar VIF de las restantes, repetir hasta que todas tengan VIF ≤ 10. De 15 variables numéricas, 8 sobreviven. <code>fma_penetration_30d</code> pasa de VIF inicial 9.81 a final 4.33, sobreviviendo correctamente. <strong>Aprendizaje:</strong> el reporte ahora muestra tanto <code>vif_initial</code> como <code>vif_final</code> para cada variable, mejorando la trazabilidad.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 10. INTERPRETABILIDAD SHAP ── -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Sección 10 — R10</div>
+    <h2>Interpretabilidad: SHAP del modelo principal</h2>
+    <p class="doc-p">SHAP TreeExplainer (exacto para modelos de árbol) calcula los valores de Shapley sobre las 56 observaciones de validación. A diferencia de las importancias por impureza Gini, los valores SHAP son aditivos, consistentes con la predicción del modelo y permiten explicaciones individuales por técnico: cuánto contribuye cada variable al score de ese técnico específico, en la dirección correcta.</p>
+
+    <h3 class="doc-h3">Tabla 24. Importancia global SHAP — top-10 features (Random Forest)</h3>
+    <div class="tbl-wrap">
+      <table class="doc-table" style="max-width:560px;">
+        <thead>
+          <tr><th>#</th><th>Feature</th><th>Mean |SHAP|</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td><code>obs_active_days_ratio_w14</code></td><td><strong>0.060</strong></td></tr>
+          <tr><td>2</td><td><code>obs_events_late_half_w14</code></td><td>0.060</td></tr>
+          <tr><td>3</td><td><code>obs_active_days_w14</code></td><td>0.056</td></tr>
+          <tr><td>4</td><td><code>obs_active_days_late_half_w14</code></td><td>0.045</td></tr>
+          <tr><td>5</td><td><code>obs_sessions_count_w14</code></td><td>0.038</td></tr>
+          <tr><td>6</td><td><code>obs_time_count_w14</code></td><td>0.037</td></tr>
+          <tr><td>7</td><td><code>obs_job_close_out_count_w14</code></td><td>0.022</td></tr>
+          <tr><td>8</td><td><code>obs_time_pct_w14</code></td><td>0.022</td></tr>
+          <tr><td>9</td><td><code>obs_events_growth_ratio_w14</code></td><td>0.015</td></tr>
+          <tr><td>10</td><td><code>obs_events_count_w14_log</code></td><td>0.015</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="notice" style="max-width:720px;margin-bottom:28px;">
+      <strong>Fuera del top-10 pero relevantes:</strong> <code>app_version_max=17.1.0</code> (mean |SHAP| = 0.0145): técnicos con la última versión estable observada reciben empuje positivo al score de retención. <code>fma_penetration_30d</code> (mean |SHAP| = 0.0119): el efecto social está presente en el top-15, con magnitud ~5× menor que la variable principal, confirmando la hipótesis del anteproyecto pero como factor secundario.
+    </div>
+
+    <h3 class="doc-h3">Explicabilidad local — tres técnicos representativos</h3>
+    <p class="doc-p">Cada técnico de validación tiene sus 3 factores SHAP dominantes documentados en <code>outputs/tables/shap_dominant_factors_per_tech_RF.csv</code>. Los tres casos a continuación ilustran la interpretabilidad operativa del sistema.</p>
+
+    <div style="max-width:820px;">
+      <div class="shap-case">
+        <div class="shap-case-head">
+          <span class="shap-tag-ret">Retenido</span>
+          <strong style="font-size:13px;">Técnico ID 4293 — label = 1</strong>
+        </div>
+        <div class="shap-factor">obs_active_days_ratio_w14 (SHAP = +0.070) — alto ratio de días activos durante T0</div>
+        <div class="shap-factor">obs_events_late_half_w14 (SHAP = +0.061) — actividad sostenida en la segunda mitad de la ventana</div>
+        <div class="shap-factor">obs_active_days_late_half_w14 (SHAP = +0.050) — días activos consistentes en los días 7–13</div>
+        <div class="shap-reading"><strong>Lectura para el equipo de Producto:</strong> este técnico se retuvo porque mantuvo intensidad estable a lo largo de las 2 semanas de observación. Los tres factores apuntan al mismo patrón: actividad sostenida, no solo en los primeros días sino también en la segunda mitad de T0.</div>
+      </div>
+
+      <div class="shap-case">
+        <div class="shap-case-head">
+          <span class="shap-tag-aban">Abandono</span>
+          <strong style="font-size:13px;">Técnico ID 25219 — label = 0</strong>
+        </div>
+        <div class="shap-factor">obs_active_days_ratio_w14 (SHAP = −0.061) — bajo ratio de días activos</div>
+        <div class="shap-factor">obs_events_late_half_w14 (SHAP = −0.058) — actividad nula en la segunda mitad de la ventana</div>
+        <div class="shap-factor">obs_active_days_late_half_w14 (SHAP = −0.053) — sin días activos en los días 7–13</div>
+        <div class="shap-reading"><strong>Lectura para el equipo de Producto:</strong> este técnico mostró señales de abandono ya en la primera semana: las mismas variables que retienen al caso anterior, en signo opuesto. Es accionable: detectable tempranamente para intervención antes del día 14.</div>
+      </div>
+
+      <div class="shap-case">
+        <div class="shap-case-head">
+          <span class="shap-tag-mix">Señal mixta</span>
+          <strong style="font-size:13px;">Técnico ID 9660607 — label = 0</strong>
+        </div>
+        <div class="shap-factor">obs_events_late_half_w14 (SHAP = −0.076) — eventos bajos en segunda mitad (señal de abandono)</div>
+        <div class="shap-factor">obs_active_days_w14 (SHAP = −0.064) — pocos días activos totales (señal de abandono)</div>
+        <div class="shap-factor">obs_time_count_w14 (SHAP = +0.063) — uso alto de la funcionalidad Time (señal de retención)</div>
+        <div class="shap-reading"><strong>Lectura para el equipo de Producto:</strong> técnico con uso intenso de timesheet pero abandono temprano de los demás flujos. Probablemente llenó tiempos pero no completó Job Close Out ni otras funcionalidades. La explicación local permite al equipo de Customer Success distinguir este perfil no estándar de los abandonos clásicos y personalizar la intervención. Esta granularidad es exactamente lo que R10 exige.</div>
+      </div>
+    </div>
+
+    <h3 class="doc-h3" style="margin-top:24px;">Conexión con el dominio del problema</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:960px;margin-top:12px;">
+      <div class="card">
+        <div class="card-badge">1</div>
+        <h3>La retención se decide en las primeras 2 semanas</h3>
+        <p>Las top-4 variables SHAP miden intensidad y consistencia en T0. La intervención debe ser temprana: esperar al día 30 reduce la oportunidad de retención. La Vista 2 del tablero emite alertas a partir del día 7.</p>
+      </div>
+      <div class="card">
+        <div class="card-badge">2</div>
+        <h3>Time y Job Close Out anclan al técnico en FMA</h3>
+        <p><code>obs_job_close_out_count_w14</code> y <code>obs_time_count_w14</code> aparecen en el top-8 SHAP. Técnicos que registran tiempo y cierran trabajos en sus primeros días tienen mayor probabilidad de retención. Acción posible: onboarding dirigido a estos dos flujos operativos críticos.</p>
+      </div>
+      <div class="card">
+        <div class="card-badge">3</div>
+        <h3>El efecto social existe pero es secundario</h3>
+        <p><code>fma_penetration_30d</code> aparece en top-15 con mean |SHAP| = 0.012, ~5× menor que la variable principal. La hipótesis del anteproyecto se valida cualitativamente, pero no es el driver dominante en este sample. Acción: monitorear con muestra expandida.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 11. CUMPLIMIENTO CONSOLIDADO ── -->
+<section>
+  <div class="wrap">
+    <div class="sec-tag">Sección 11 — Tabla 25</div>
+    <h2>Cumplimiento consolidado de requerimientos</h2>
+    <p class="sec-desc">Estado final de los 12 requerimientos evaluados en la Entrega 2, con el resultado obtenido y el umbral definido en la Entrega 1.</p>
+
+    <div class="req-list" style="max-width:900px;">
+      <div class="req-row">
+        <div class="req-id">R2</div>
+        <div class="req-desc">≥5 factores diferenciadores con significancia estadística — <em>10 factores con p &lt; 0.05</em></div>
+        <span class="badge badge-green">Cumple</span>
+      </div>
+      <div class="req-row">
+        <div class="req-id">R3</div>
+        <div class="req-desc">Diferencia retención Q4–Q1 ≥10 pp — <em>78.6 pp observados</em></div>
+        <span class="badge badge-green">Cumple</span>
+      </div>
+      <div class="req-row">
+        <div class="req-id">R5</div>
+        <div class="req-desc">AUC en validación ≥0.70 — <em>LR = 0.861, RF = 0.829</em></div>
+        <span class="badge badge-green">Cumple</span>
+      </div>
+      <div class="req-row">
+        <div class="req-id">R6</div>
+        <div class="req-desc">Correlación Pearson score-tenant vs. retención ≥0.50 — <em>r = 0.576, p &lt; 0.001</em></div>
+        <span class="badge badge-green">Cumple</span>
+      </div>
+      <div class="req-row">
+        <div class="req-id">R7</div>
+        <div class="req-desc">Recall clase abandono en validación ≥0.70 — <em>RF = 0.78</em></div>
+        <span class="badge badge-green">Cumple</span>
+      </div>
+      <div class="req-row">
+        <div class="req-id">R8</div>
+        <div class="req-desc">Precisión clase abandono en validación ≥0.60 — <em>RF = 0.86</em></div>
+        <span class="badge badge-green">Cumple</span>
+      </div>
+      <div class="req-row">
+        <div class="req-id">R9</div>
+        <div class="req-desc">F1-score clase abandono en validación ≥0.65 — <em>RF = 0.82</em></div>
+        <span class="badge badge-green">Cumple</span>
+      </div>
+      <div class="req-row">
+        <div class="req-id">R10</div>
+        <div class="req-desc">Interpretabilidad individual: top-10 global + 3 factores SHAP por técnico — <em>SHAP TreeExplainer sobre RF, archivos CSV por técnico generados</em></div>
+        <span class="badge badge-green">Cumple</span>
+      </div>
+      <div class="req-row">
+        <div class="req-id">R11</div>
+        <div class="req-desc">Delta AUC train–validación ≤5 pp — <em>mejor resultado: LR = 13.9 pp. Causa: EPV = 0.9 con n=84. Plan correctivo: muestra expandida ~5.000 técnicos en Q3-Q4 2026.</em></div>
+        <span class="badge badge-red">No cumple</span>
+      </div>
+      <div class="req-row">
+        <div class="req-id">R12</div>
+        <div class="req-desc">Tabla comparativa ≥3 modelos — <em>4 modelos comparados bajo el mismo protocolo</em></div>
+        <span class="badge badge-green">Cumple</span>
+      </div>
+      <div class="req-row">
+        <div class="req-id">R13</div>
+        <div class="req-desc">Pipeline completo ≤10 minutos — <em>21 segundos en muestra exploratoria (n=140)</em></div>
+        <span class="badge badge-green">Cumple</span>
+      </div>
+      <div class="req-row">
+        <div class="req-id">R1</div>
+        <div class="req-desc">≥70% de tenants con migración estancada identificados como alto riesgo — <em>pendiente: requiere cruzar el score agregado con FMA_MIGRATION_STATUS_30D filtrando a tenants en estado "Partially/Minority Migrated". Los datos existen en el feature store.</em></div>
+        <span class="badge badge-amber">Pendiente</span>
+      </div>
+    </div>
+
+    <div class="notice" style="max-width:900px;margin-top:20px;">
+      <strong>Resumen:</strong> 10 requerimientos cumplen sus criterios de aceptación. R11 no cumple por razones estructurales de tamaño de muestra (n=84, EPV = 0.9), con plan correctivo documentado para Q3-Q4 2026 cuando esté disponible el dataset completo de ServiceTitan. R1 está pendiente de una validación puntual que puede realizarse sobre los artefactos ya generados.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="inst-logos">
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-uniandes"><img src="assets/logo-uniandes.png" alt="Uniandes"></div>
+        <div><div class="inst-name-w">UNIANDES</div><div class="inst-sub-w">Maestr&iacute;a MIAD</div></div>
+      </div>
+      <div class="inst-divider"></div>
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-st"><img src="assets/logo-servicetitan.png" alt="ServiceTitan"></div>
+        <div><div class="inst-name-w">ServiceTitan</div><div class="inst-sub-w">Product, FMA</div></div>
+      </div>
+    </div>
+    <div>
+      <a href="https://github.com/mbayonal/fma-adoption-intelligence" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app" target="_blank" rel="noopener">Prototipo</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /.site-main -->
+</div><!-- /.app-layout -->
+
+</body>
+</html>

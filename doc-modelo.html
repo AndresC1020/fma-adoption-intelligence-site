@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMA Adoption Intelligence — Modelo predictivo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="site-sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-name"><span class="sidebar-brand-dot"></span>FMA Adoption Intelligence</div>
+    <div class="sidebar-brand-sub">Maestría MIAD &nbsp;&middot;&nbsp; Uniandes</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Principal</span>
+      <a href="index.html" class="sidebar-link">Inicio</a>
+      <a href="demo.html" class="sidebar-link">Demo</a>
+      <a href="evaluacion.html" class="sidebar-link">Evaluación</a>
+      <a href="presentacion.html" class="sidebar-link">Presentación</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Documentación</span>
+      <a href="documentacion.html" class="sidebar-link sidebar-sub">Arquitectura del pipeline</a>
+      <a href="doc-modelo.html" class="sidebar-link sidebar-sub active">Modelo predictivo</a>
+      <a href="doc-manual.html" class="sidebar-link sidebar-sub">Manual de usuario</a>
+      <a href="doc-tecnica.html" class="sidebar-link sidebar-sub">Documentación técnica</a>
+      <a href="doc-reporte.html" class="sidebar-link sidebar-sub">Reporte experimentos E2</a>
+      <a href="doc-codigo.html" class="sidebar-link sidebar-sub">Código fuente</a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="site-main">
+
+<div class="page-hero">
+  <div class="wrap">
+    <div class="sec-tag">El modelo predictivo</div>
+    <h1>Random Forest, clasificación binaria</h1>
+    <p>Variable objetivo: técnico con 15 o más días activos en los 60 días posteriores al período de observación de 14 días.</p>
+  </div>
+</div>
+
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Métricas de validación</div>
+    <h2>Resultados out-of-time</h2>
+    <p class="sec-desc">La validación "fuera del tiempo" (out-of-time) es el estándar más riguroso para evaluar modelos predictivos en producción: el modelo entrena con datos históricos y se evalúa con datos de un período posterior que nunca vio durante el entrenamiento. En este proyecto: entrenamiento con datos hasta el 8 de febrero de 2026, validación con datos del 9 de febrero al 12 de marzo de 2026 (n=56 técnicos). Esto simula exactamente cómo funcionará el modelo en producción.</p>
+    <div class="metrics-row" style="margin:0 auto 28px;max-width:680px;">
+      <div class="metric"><div class="metric-val">0.829</div><div class="metric-lbl">AUC-ROC</div></div>
+      <div class="metric"><div class="metric-val">0.82</div><div class="metric-lbl">F1-Score</div></div>
+      <div class="metric"><div class="metric-val">0.78</div><div class="metric-lbl">Sensibilidad</div></div>
+      <div class="metric"><div class="metric-val">0.86</div><div class="metric-lbl">Precisión</div></div>
+      <div class="metric"><div class="metric-val">0.48</div><div class="metric-lbl">Umbral F1-óptimo</div></div>
+    </div>
+    <div class="notice-warn">
+      <strong>Limitación documentada (R11):</strong>
+      Delta AUC entrenamiento (0.997) vs validación (0.829) = 16.8 pp. Causa: EPV bajo con n=84 en entrenamiento.
+      Plan correctivo: ampliar muestra a 2.000-5.000 técnicos en Q3-Q4 2026.
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-tag">Comparación de modelos</div>
+    <h2>¿Por qué Random Forest?</h2>
+    <p class="sec-desc">Se evaluaron cuatro algoritmos con el mismo protocolo experimental: mismas variables de entrada (57 por técnico), misma partición de datos (out-of-time), mismo valor de semilla (RANDOM_STATE=42). El criterio de selección final fue el F1-Score sobre la clase "abandono", que balancea precisión y sensibilidad.</p>
+    <table class="doc-table" style="max-width:680px;">
+      <thead>
+        <tr>
+          <th>Modelo</th>
+          <th>AUC-ROC val.</th>
+          <th>F1-Score</th>
+          <th>Recall</th>
+          <th>Delta AUC</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Random Forest</strong> <span style="font-size:11px;color:var(--acc);">seleccionado</span></td>
+          <td>0.829</td><td><strong>0.82</strong></td><td>0.78</td><td>16.8 pp</td>
+        </tr>
+        <tr>
+          <td>Regresión Logística (baseline)</td>
+          <td>0.861</td><td>0.75</td><td>0.69</td><td>13.9 pp</td>
+        </tr>
+        <tr>
+          <td>XGBoost</td>
+          <td>0.801</td><td>0.71</td><td>0.66</td><td>18.6 pp</td>
+        </tr>
+        <tr>
+          <td>AdaBoost</td>
+          <td>0.788</td><td>0.69</td><td>0.63</td><td>18.4 pp</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="doc-p"><strong>Decisión de selección:</strong> Aunque la Regresión Logística tiene un AUC-ROC ligeramente superior (0.861 vs 0.829), el objetivo del sistema no es solo discriminar entre clases sino detectar el mayor número posible de técnicos que van a abandonar (sensibilidad alta) sin generar falsas alarmas excesivas (precisión alta). RF maximiza el F1-Score (0.82 vs 0.75 de LR), que es precisamente esa métrica compuesta. La columna "Delta AUC" mide la brecha entre rendimiento en entrenamiento y en validación: un valor alto indica que el modelo aprendió demasiado los datos de entrenamiento (sobreajuste). Todos los modelos tienen delta mayor al umbral de 5 pp por EPV bajo; RF tiene el segundo menor delta.</p>
+  </div>
+</section>
+
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Variables del modelo</div>
+    <h2>Factores más determinantes</h2>
+    <p class="sec-desc">El modelo utiliza 57 variables por técnico, construidas sobre los primeros 14 días de actividad en FMA (ventana de observación). De estas, 10 presentaron diferencia estadísticamente significativa (p &lt; 0.05) entre el grupo de técnicos que retuvieron FMA y los que la abandonaron. Se agrupan en tres dimensiones:</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:980px;">
+      <div class="card">
+        <div class="card-badge">Comportamiento</div>
+        <h3>Actividad en primeros 14 días</h3>
+        <p>Las variables de comportamiento más predictivas son: sesiones totales (obs_sessions_count_w14), días activos (obs_active_days_w14), ratio de días activos sobre días disponibles (obs_active_days_ratio_w14) y eventos en la segunda semana (obs_events_late_half_w14). Los técnicos que retienen FMA registran en promedio 3 a 4 veces más actividad en los primeros 7 días que los que abandonan. La actividad en la segunda semana es especialmente predictiva porque mide si el técnico mantuvo el hábito o solo lo probó.</p>
+      </div>
+      <div class="card">
+        <div class="card-badge">Funcionalidades</div>
+        <h3>Uso de herramientas clave</h3>
+        <p>De las funcionalidades disponibles en FMA, tres muestran la mayor diferencia estadística entre adoptantes y desertores: <strong>Job Close Out</strong> (cierre de órdenes de trabajo), <strong>Time</strong> (registro de horas) y <strong>Payment</strong> (procesamiento de pagos). Estas son las funcionalidades del flujo de trabajo diario del técnico, no funciones secundarias. Quienes las usan en los primeros 14 días tienden a integrarlas en su rutina y retienen la plataforma.</p>
+      </div>
+      <div class="card">
+        <div class="card-badge">Contexto</div>
+        <h3>Entorno del técnico</h3>
+        <p>Variables de contexto que el técnico no controla directamente pero que condicionan su adopción: el <strong>porcentaje de colegas del mismo cliente que ya están en FMA</strong> (efecto de red social interna), la <strong>versión máxima de la app</strong> que ha utilizado (indicador de actualización y acceso a funciones nuevas), y el <strong>estado general de migración del cliente</strong>. Un técnico rodeado de colegas adoptantes tiene mayor probabilidad de retener, independientemente de su comportamiento individual.</p>
+      </div>
+    </div>
+    <div style="margin-top:24px;">
+      <a href="doc-reporte.html" class="btn btn-primary">Ver reporte completo de experimentos</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="inst-logos">
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-uniandes"><img src="assets/logo-uniandes.png" alt="Uniandes"></div>
+        <div><div class="inst-name-w">UNIANDES</div><div class="inst-sub-w">Maestr&iacute;a MIAD</div></div>
+      </div>
+      <div class="inst-divider"></div>
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-st"><img src="assets/logo-servicetitan.png" alt="ServiceTitan"></div>
+        <div><div class="inst-name-w">ServiceTitan</div><div class="inst-sub-w">Product, FMA</div></div>
+      </div>
+    </div>
+    <div>
+      <a href="https://github.com/mbayonal/fma-adoption-intelligence" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app" target="_blank" rel="noopener">Prototipo</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /.site-main -->
+</div><!-- /.app-layout -->
+
+</body>
+</html>

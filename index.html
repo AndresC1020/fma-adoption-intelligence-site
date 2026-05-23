@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMA Adoption Intelligence — Inicio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="site-sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-name"><span class="sidebar-brand-dot"></span>FMA Adoption Intelligence</div>
+    <div class="sidebar-brand-sub">Maestría MIAD &nbsp;&middot;&nbsp; Uniandes</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Principal</span>
+      <a href="index.html" class="sidebar-link active">Inicio</a>
+      <a href="demo.html" class="sidebar-link">Demo</a>
+      <a href="evaluacion.html" class="sidebar-link">Evaluación</a>
+      <a href="presentacion.html" class="sidebar-link">Presentación</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Documentación</span>
+      <a href="documentacion.html" class="sidebar-link sidebar-sub">Arquitectura del pipeline</a>
+      <a href="doc-modelo.html" class="sidebar-link sidebar-sub">Modelo predictivo</a>
+      <a href="doc-manual.html" class="sidebar-link sidebar-sub">Manual de usuario</a>
+      <a href="doc-tecnica.html" class="sidebar-link sidebar-sub">Documentación técnica</a>
+      <a href="doc-reporte.html" class="sidebar-link sidebar-sub">Reporte experimentos E2</a>
+      <a href="doc-codigo.html" class="sidebar-link sidebar-sub">Código fuente</a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="site-main">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-orgs">
+      <div class="inst-logo-sm">
+        <div class="inst-mark inst-mark-uniandes"><img src="assets/logo-uniandes.png" alt="Uniandes"></div>
+        <span>Universidad de los Andes, MIAD 2026</span>
+      </div>
+      <span class="hero-orgs-sep">&#183;</span>
+      <div class="inst-logo-sm">
+        <div class="inst-mark inst-mark-st"><img src="assets/logo-servicetitan.png" alt="ServiceTitan"></div>
+        <span>ServiceTitan</span>
+      </div>
+    </div>
+    <h1>FMA <em>Adoption</em> Intelligence</h1>
+    <p class="hero-sub">
+      Sistema predictivo para identificar técnicos y clientes con riesgo de abandono
+      durante la migración TMA &rarr; FMA en ServiceTitan.
+    </p>
+    <div class="hero-actions">
+      <a href="demo.html" class="btn btn-primary">Ver demo del prototipo</a>
+      <a href="https://github.com/mbayonal/fma-adoption-intelligence"
+         target="_blank" rel="noopener" class="btn btn-secondary">Ver código en GitHub &nearr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- GUÍA PARA EL EVALUADOR -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Para el comité evaluador</div>
+    <h2>Cómo navegar este sitio</h2>
+    <p class="sec-desc">Este sitio concentra todos los entregables de la Entrega 3 del proyecto FMA Adoption Intelligence. La barra lateral izquierda es la navegación principal. Los tres bloques a continuación indican con precisión dónde encontrar cada elemento solicitado en la rúbrica de evaluación.</p>
+  </div>
+</section>
+
+<!-- BLOQUE 1: TABLA DE REQUERIMIENTOS -->
+<section>
+  <div class="wrap">
+    <div style="display:flex;align-items:flex-start;gap:28px;max-width:860px;">
+      <div class="step-num" style="width:44px;height:44px;font-size:16px;flex-shrink:0;">1</div>
+      <div style="flex:1;">
+        <div class="sec-tag">Evaluación</div>
+        <h2>Tabla de requerimientos completa</h2>
+        <p class="doc-p">La rúbrica del proyecto diligenciada en su totalidad: los 21 requerimientos definidos en la Entrega 1, cada uno con la prueba realizada, el criterio de cumplimiento, la evidencia observada, los ajustes implementados durante la validación y la justificación correspondiente. Esta tabla es la fuente de verdad del proceso de evaluación.</p>
+        <div class="notice-warn" style="margin:16px 0 20px;">
+          <strong>Estado general:</strong> 17 requerimientos cumplen plenamente &nbsp;&middot;&nbsp; 3 cumplen de forma parcial con justificación documentada &nbsp;&middot;&nbsp; 1 no cumple (R11: sobreajuste por muestra pequeña, con plan correctivo para Q3-Q4 2026).
+        </div>
+        <a href="evaluacion.html" class="btn btn-primary">Ir a la tabla de requerimientos</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOQUE 2: ENTREGABLES DEL PROTOTIPO -->
+<section class="bg-white">
+  <div class="wrap">
+    <div style="display:flex;align-items:flex-start;gap:28px;">
+      <div class="step-num" style="width:44px;height:44px;font-size:16px;flex-shrink:0;">2</div>
+      <div style="flex:1;min-width:0;">
+        <div class="sec-tag">Prototipo</div>
+        <h2>Entregables del prototipo</h2>
+        <p class="doc-p">El sistema está compuesto por un pipeline de datos, un modelo predictivo, una interfaz interactiva y documentación técnica y de usuario. Todos los componentes son accesibles desde este sitio o desde el repositorio público de GitHub.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;max-width:980px;">
+
+          <div class="card">
+            <div class="card-badge">Ejecutable</div>
+            <h3>Prototipo interactivo</h3>
+            <p>Tablero con las tres vistas analíticas: Factores de adopción (descriptivo), Puntuación de riesgo (predictivo) y Guía de migración (prescriptivo). Desplegado en Streamlit Community Cloud. No requiere instalación ni cuenta.</p>
+            <div style="margin-top:12px;"><a href="demo.html" style="font-size:13px;font-weight:600;color:var(--acc);">Ver demo e instrucciones de acceso</a></div>
+          </div>
+
+          <div class="card">
+            <div class="card-badge">Código fuente</div>
+            <h3>Repositorio GitHub</h3>
+            <p>Código completo del proyecto: <code>pipeline.py</code> (ETL + modelo + SHAP), <code>app.py</code> (tablero Streamlit), módulos <code>src/etl.py</code> y <code>src/config.py</code>, modelo serializado y datos de muestra. Incluye instrucciones de instalación local.</p>
+            <div style="margin-top:12px;"><a href="doc-codigo.html" style="font-size:13px;font-weight:600;color:var(--acc);">Ver código fuente y estructura</a></div>
+          </div>
+
+          <div class="card">
+            <div class="card-badge">Manual</div>
+            <h3>Manual de usuario</h3>
+            <p>Guía completa de uso del tablero: cómo acceder, estructura de las tres vistas, uso de filtros interactivos, interpretación del score de riesgo y los factores SHAP, proceso de actualización de datos y glosario de términos.</p>
+            <div style="margin-top:12px;"><a href="doc-manual.html" style="font-size:13px;font-weight:600;color:var(--acc);">Ver manual de usuario</a></div>
+          </div>
+
+          <div class="card">
+            <div class="card-badge">Arquitectura</div>
+            <h3>Pipeline y arquitectura</h3>
+            <p>Diagrama de flujo completo del sistema en dos filas: desde las fuentes de datos (Snowflake / CSV) hasta el tablero en el navegador. Descripción del stack técnico (pandas, scikit-learn, SHAP, Streamlit) y las cinco fases del pipeline.</p>
+            <div style="margin-top:12px;"><a href="documentacion.html" style="font-size:13px;font-weight:600;color:var(--acc);">Ver arquitectura del pipeline</a></div>
+          </div>
+
+          <div class="card">
+            <div class="card-badge">Modelo</div>
+            <h3>Modelo predictivo</h3>
+            <p>Random Forest con validación out-of-time. Métricas: AUC-ROC = 0.829, F1 = 0.82, Sensibilidad = 0.78, Precisión = 0.86. Comparación con tres modelos candidatos y justificación de la selección. Factores SHAP más determinantes.</p>
+            <div style="margin-top:12px;"><a href="doc-modelo.html" style="font-size:13px;font-weight:600;color:var(--acc);">Ver modelo predictivo</a></div>
+          </div>
+
+          <div class="card">
+            <div class="card-badge">Reporte E2</div>
+            <h3>Reporte de experimentos</h3>
+            <p>Documento de la Entrega 2: tablas de métricas comparativas, análisis de overfitting, correlación score-retención real por cuartil (Pearson r = 0.576), curvas de aprendizaje y tiempos de ejecución por fase del pipeline.</p>
+            <div style="margin-top:12px;"><a href="doc-reporte.html" style="font-size:13px;font-weight:600;color:var(--acc);">Ver reporte de experimentos E2</a></div>
+          </div>
+
+        </div>
+
+        <div class="notice" style="margin-top:20px;max-width:980px;">
+          <strong>Lista de chequeo diligenciada:</strong> Los ajustes e inconsistencias identificadas durante la validación del prototipo están documentadas en la sección de Evaluación, bloque "Correcciones aplicadas": 4 correcciones con descripción del problema original, el criterio aplicado y el ajuste implementado. &nbsp;<a href="evaluacion.html">Ver correcciones aplicadas</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOQUE 3: PRESENTACIÓN EJECUTIVA -->
+<section>
+  <div class="wrap">
+    <div style="display:flex;align-items:flex-start;gap:28px;max-width:860px;">
+      <div class="step-num" style="width:44px;height:44px;font-size:16px;flex-shrink:0;">3</div>
+      <div style="flex:1;">
+        <div class="sec-tag">Presentación</div>
+        <h2>Presentación ejecutiva</h2>
+        <p class="doc-p">Presentación navegable con los resultados del proyecto, orientada a stakeholders de ServiceTitan y al tribunal evaluador del curso. Cubre el contexto del problema de negocio, la solución implementada, las métricas de validación del modelo, las limitaciones conocidas y el plan de producción para el dataset completo de ServiceTitan.</p>
+        <div style="margin-top:20px;">
+          <a href="presentacion.html" class="btn btn-primary">Ver presentación ejecutiva</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EQUIPO -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Equipo</div>
+    <h2>MIAD 2026, Universidad de los Andes</h2>
+    <p class="sec-desc">Maestría en Inteligencia Analítica de Datos. Cliente: ServiceTitan, equipo de Product, FMA.</p>
+    <div style="display:flex;gap:32px;flex-wrap:wrap;margin-top:4px;">
+      <div style="font-size:14px;color:var(--text);font-weight:500;">Andrés Alfonso</div>
+      <div style="font-size:14px;color:var(--text);font-weight:500;">Daniela Uscátegui</div>
+      <div style="font-size:14px;color:var(--text);font-weight:500;">Daniel Ricardo Marín</div>
+      <div style="font-size:14px;color:var(--text);font-weight:500;">Manuel Alejandro Bayona</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="inst-logos">
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-uniandes"><img src="assets/logo-uniandes.png" alt="Uniandes"></div>
+        <div><div class="inst-name-w">UNIANDES</div><div class="inst-sub-w">Maestr&iacute;a MIAD</div></div>
+      </div>
+      <div class="inst-divider"></div>
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-st"><img src="assets/logo-servicetitan.png" alt="ServiceTitan"></div>
+        <div><div class="inst-name-w">ServiceTitan</div><div class="inst-sub-w">Product, FMA</div></div>
+      </div>
+    </div>
+    <div>
+      <a href="https://github.com/mbayonal/fma-adoption-intelligence" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app" target="_blank" rel="noopener">Prototipo</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /.site-main -->
+</div><!-- /.app-layout -->
+
+</body>
+</html>

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMA Adoption Intelligence — Presentacion MIAD 2026</title>
+<style>
+/* ── RESET ── */
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ── TOKENS ── */
+:root{
+  --bg:#111;
+  --slide:#181818;
+  --sfc:#202020;
+  --sfc2:#272727;
+  --brdr:#2C2C2C;
+  --brdrs:#222;
+  --txt:#D8D8D8;
+  --txt2:#848484;
+  --txt3:#444;
+  --acc:#3D80F0;           /* ServiceTitan blue — single accent */
+  --acc-a:rgba(61,128,240,.07);
+  --acc-b:rgba(61,128,240,.2);
+  --pos:#6BBF80;           /* muted green for comparison data only */
+  --neg:#C97070;           /* muted red for comparison data only */
+  --andes:#C8102E;
+}
+
+/* ── SCREEN ── */
+@media screen{
+  html,body{
+    background:var(--bg);height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;overflow:hidden;
+  }
+  .deck{position:relative;width:960px;height:540px;box-shadow:0 24px 80px rgba(0,0,0,.9);}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;background:var(--slide);overflow:hidden;}
+  .slide.active{display:flex;}
+  .nav-bar{margin-top:18px;display:flex;align-items:center;gap:14px;color:rgba(255,255,255,.25);font-size:12px;}
+  .nav-bar button{
+    background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.38);
+    padding:6px 22px;cursor:pointer;border-radius:2px;font-size:12px;
+    font-family:inherit;letter-spacing:.4px;transition:all .15s;
+  }
+  .nav-bar button:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.22);}
+  .hint{font-size:10px;color:rgba(255,255,255,.12);margin-top:7px;letter-spacing:.3px;}
+}
+
+/* ── PRINT ── */
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page{size:A4 landscape;margin:0;}
+  html,body{background:#181818;display:block;}
+  .deck{width:100%;box-shadow:none;}
+  .slide{
+    display:flex!important;flex-direction:column;
+    width:100%;height:100vh;page-break-after:always;
+    overflow:hidden;position:relative;background:#181818;
+  }
+  .nav-bar,.hint{display:none;}
+}
+
+/* ── CORNER LOGOS ── */
+.clogo{position:absolute;top:15px;z-index:40;display:flex;align-items:center;gap:7px;}
+.clogo.l{left:22px;}
+.clogo.r{right:22px;}
+.lmark{
+  width:22px;height:22px;border-radius:2px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:900;flex-shrink:0;
+  font-family:'Arial Black',Arial,sans-serif;
+}
+.lmark.andes{background:var(--andes);color:#fff;}
+.lmark.st{background:var(--acc);color:#fff;}
+.lname{font-size:8px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px;}
+.snum{position:absolute;bottom:13px;right:20px;font-size:9px;color:var(--txt3);letter-spacing:1.5px;z-index:40;}
+
+/* ── BODY ── */
+.body{flex:1;padding:52px 44px 26px;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+
+/* Section tag */
+.stag{
+  display:inline-block;color:var(--acc);
+  font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;margin-bottom:6px;
+}
+
+/* Slide title */
+h1.t{
+  font-size:22px;font-weight:900;color:var(--txt);
+  margin-bottom:18px;line-height:1.12;letter-spacing:-.3px;
+  font-family:'Arial Black','Helvetica Neue',Arial,sans-serif;
+}
+
+/* Layouts */
+.c2{display:grid;grid-template-columns:1fr 1fr;gap:22px;flex:1;min-height:0;}
+.c2w{display:grid;grid-template-columns:1.15fr 1fr;gap:28px;flex:1;min-height:0;}
+.c3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;flex:1;min-height:0;}
+
+/* Card */
+.card{background:var(--sfc);border:1px solid var(--brdrs);border-radius:2px;padding:13px 15px;}
+.card h3{font-size:8px;color:var(--txt2);font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:5px;}
+.card p,.card li{font-size:11px;color:var(--txt);line-height:1.6;}
+.card ul{padding-left:13px;}
+.card li{margin-bottom:3px;}
+
+/* Body text */
+ul.bul{padding-left:16px;margin-bottom:7px;}
+ul.bul li{font-size:11.5px;color:var(--txt);line-height:1.6;margin-bottom:4px;}
+p.bt{font-size:11.5px;color:var(--txt);line-height:1.6;margin-bottom:6px;}
+
+/* Big number */
+.bignum{font-size:52px;font-weight:900;color:var(--acc);line-height:1;display:block;letter-spacing:-2px;font-family:'Arial Black',Arial,sans-serif;}
+.biglbl{font-size:11px;color:var(--txt2);margin-top:4px;display:block;}
+
+/* Highlight box */
+.hlbox{background:var(--acc-a);border:1px solid var(--acc-b);border-radius:2px;padding:10px 13px;}
+.hlbox p{font-size:11px;color:rgba(61,128,240,.9);font-weight:500;font-style:italic;line-height:1.6;}
+
+/* Data boxes (slide 2) */
+.dgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.dbox{background:var(--sfc);border:1px solid var(--brdrs);border-top:1px solid var(--brdr);border-radius:2px;padding:10px 8px;text-align:center;}
+.dbox.hero{border-top:2px solid var(--acc);}
+.dbox .dv{font-size:22px;font-weight:900;color:var(--txt);display:block;font-family:'Arial Black',Arial,sans-serif;}
+.dbox .dl{font-size:8.5px;color:var(--txt2);line-height:1.3;margin-top:2px;}
+
+/* Flow bar */
+.flow{background:var(--sfc);border:1px solid var(--brdrs);border-radius:2px;padding:7px 14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex-shrink:0;}
+.fst{background:var(--sfc2);color:var(--txt2);font-size:8.5px;font-weight:600;padding:3px 9px;border-radius:2px;border:1px solid var(--brdr);white-space:nowrap;}
+.arr{color:var(--txt3);font-size:11px;}
+
+/* Guarantee / info bar */
+.gbar{background:var(--sfc);border:1px solid var(--brdrs);border-top:2px solid var(--acc);border-radius:2px;padding:7px 14px;display:flex;gap:14px;align-items:center;flex-shrink:0;margin-top:10px;}
+.gblbl{font-size:7.5px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1.2px;}
+.gbitem{font-size:9.5px;color:var(--txt);}
+.gbsep{color:var(--brdr);}
+
+/* Comparison table (slide 7) */
+table.cmp{width:100%;border-collapse:collapse;font-size:11px;}
+table.cmp th{background:var(--sfc);color:var(--txt2);padding:6px 10px;text-align:left;font-weight:700;font-size:8.5px;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--brdr);}
+table.cmp td{padding:6px 10px;border-bottom:1px solid var(--brdrs);color:var(--txt);vertical-align:top;line-height:1.45;}
+table.cmp tr:last-child td{border-bottom:none;}
+
+/* Q metric */
+.qm{background:var(--acc-a);border:1px solid var(--acc-b);border-radius:2px;padding:10px 13px;text-align:center;margin-top:10px;}
+.qm .qb{font-size:18px;font-weight:900;display:block;color:var(--acc);font-family:'Arial Black',Arial,sans-serif;letter-spacing:-.3px;}
+.qm .qs{font-size:9px;color:var(--txt2);margin-top:3px;}
+
+/* Limitations */
+.limbox{background:var(--sfc);border:1px solid var(--brdrs);border-radius:2px;padding:5px 12px;font-size:9px;color:var(--txt2);flex-shrink:0;margin-top:8px;line-height:1.45;}
+
+/* ── VISTA DATA PANEL ── */
+.data-panel{background:var(--sfc);border:1px solid var(--brdrs);border-radius:2px;display:flex;flex-direction:column;overflow:hidden;}
+.dp-hdr{padding:8px 14px;border-bottom:1px solid var(--brdrs);}
+.dp-hdr .dp-title{font-size:10px;font-weight:700;color:var(--txt);letter-spacing:.2px;}
+.dp-hdr .dp-q{font-size:8.5px;color:var(--txt2);font-style:italic;margin-top:2px;}
+.dp-body{flex:1;padding:10px 12px;overflow:hidden;}
+
+/* Minimal comparison table (Vista 1) */
+table.vt{width:100%;border-collapse:collapse;}
+table.vt th{color:var(--txt2);padding:3px 5px;font-weight:700;font-size:7.5px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--brdr);text-align:right;}
+table.vt th:first-child{text-align:left;}
+table.vt th.pos{color:var(--pos);}
+table.vt th.neg{color:var(--neg);}
+table.vt td{padding:3.5px 5px;border-bottom:1px solid var(--brdrs);color:var(--txt);font-size:9.5px;text-align:right;}
+table.vt td:first-child{text-align:left;color:var(--txt2);}
+table.vt tr:last-child td{border-bottom:none;}
+table.vt .pg{color:var(--pos);font-weight:600;}
+table.vt .pr{color:var(--neg);font-weight:600;}
+table.vt .chk{color:var(--pos);}
+
+/* KPI grid (Vista 2) */
+.kgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:5px;}
+.kgrid.two{grid-template-columns:1fr 1fr;}
+.kpi{background:var(--sfc2);border:1px solid var(--brdrs);border-radius:2px;padding:6px 5px;text-align:center;}
+.kpi .kv{font-size:15px;font-weight:900;color:var(--txt);display:block;line-height:1;font-family:'Arial Black',Arial,sans-serif;}
+.kpi .kv.ac{color:var(--acc);}
+.kpi .kl{font-size:7px;color:var(--txt2);display:block;margin-top:2px;line-height:1.3;}
+
+table.ct{width:100%;border-collapse:collapse;}
+table.ct th{color:var(--txt2);padding:3px 5px;font-weight:700;font-size:7.5px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--brdr);}
+table.ct td{padding:3px 5px;border-bottom:1px solid var(--brdrs);color:var(--txt);font-size:9px;}
+table.ct tr:last-child td{border-bottom:none;}
+.bcrit{background:rgba(255,107,0,.1);color:var(--acc);font-size:7px;font-weight:700;padding:1px 5px;border-radius:2px;border:1px solid var(--acc-b);}
+
+/* Segment grid (Vista 3) */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:7px;}
+.smini{border-radius:2px;padding:6px 8px;background:var(--sfc2);border:1px solid var(--brdrs);}
+.smini .sn{font-size:22px;font-weight:900;display:block;line-height:1;font-family:'Arial Black',Arial,sans-serif;color:var(--txt);}
+.smini.crit .sn{color:var(--acc);}
+.smini .sl{font-size:7.5px;font-weight:700;display:block;margin-top:2px;color:var(--txt);}
+.smini .sd{font-size:7px;color:var(--txt2);display:block;}
+
+.rmini{background:var(--sfc2);border:1px solid var(--brdrs);border-left:2px solid var(--acc);border-radius:2px;padding:5px 9px;margin-bottom:4px;font-size:9px;color:var(--txt2);line-height:1.4;}
+.rmini b{color:var(--txt);font-weight:600;}
+
+/* ── INSIGHTS COLUMN ── */
+.insights{
+  padding-left:26px;border-left:1px solid var(--brdr);
+  display:flex;flex-direction:column;justify-content:center;
+}
+.ins-lbl{font-size:7.5px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;}
+.ins-list{list-style:none;padding:0;}
+.ins-list li{
+  font-size:11.5px;color:var(--txt);line-height:1.6;
+  margin-bottom:12px;padding-left:14px;position:relative;
+}
+.ins-list li::before{
+  content:'';position:absolute;left:0;top:8px;
+  width:4px;height:4px;background:var(--acc);border-radius:1px;
+}
+.ins-list li span{color:var(--txt2);font-size:10.5px;}
+.ins-list li strong{color:var(--acc);font-weight:700;}
+
+/* ── SLIDE 1: COVER ── */
+#s1{background:#0C0C0C;}
+.cover-inner{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center;flex:1;min-height:0;}
+.cover-ey{font-size:8px;color:var(--txt3);text-transform:uppercase;letter-spacing:3px;margin-bottom:14px;}
+.cover-t{font-size:44px;font-weight:900;color:var(--txt);letter-spacing:-2.5px;line-height:1;margin-bottom:10px;font-family:'Arial Black','Helvetica Neue',Arial,sans-serif;}
+.cover-t em{color:var(--acc);font-style:normal;}
+.cover-sub{font-size:12.5px;color:var(--txt2);margin-bottom:24px;line-height:1.6;max-width:360px;}
+.cover-team{font-size:9.5px;color:var(--txt3);line-height:2.2;letter-spacing:.2px;}
+.cbox{background:var(--sfc);border:1px solid var(--brdrs);border-radius:2px;padding:11px 12px;margin-bottom:10px;}
+.cbox:last-child{margin-bottom:0;}
+.cbox-ph{height:64px;background:var(--sfc2);border-radius:2px;margin-bottom:7px;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--txt3);border:1px dashed var(--brdr);text-align:center;line-height:1.4;padding:8px;}
+.cbox-lbl{font-size:7.5px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;}
+
+/* Slide 3 layer labels */
+.layer-lbl{display:inline-block;font-size:7.5px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:7px;background:var(--sfc2);padding:2px 7px;border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ===== SLIDE 1: PORTADA ===== -->
+<section class="slide active" id="s1">
+  <div class="body">
+    <div class="cover-inner">
+      <div>
+        <p class="cover-ey">Proyecto Aplicado en Analitica de Datos · MIAD 2026</p>
+        <h1 class="cover-t">FMA Adoption<br><em>Intelligence</em></h1>
+        <p class="cover-sub">Tablero predictivo para priorizar la migracion de tecnicos TMA hacia FMA en ServiceTitan</p>
+        <p class="cover-team">
+          Andres Alfonso<br>
+          Daniela Uscategui<br>
+          Daniel Ricardo Marin<br>
+          Manuel Alejandro Bayona
+        </p>
+      </div>
+      <div>
+        <div class="cbox">
+          <div class="cbox-ph">[ Mockup E1 — agregar imagen ]</div>
+          <span class="cbox-lbl">Diseno original (E1)</span>
+        </div>
+        <div class="cbox">
+          <div class="cbox-ph" style="flex-direction:column;gap:4px;">
+            <span style="font-size:8.5px;color:var(--txt2);font-weight:600;">Prototipo desplegado</span>
+            <span style="font-size:7.5px;color:var(--txt3);">fma-adoption-intelligence.streamlit.app</span>
+          </div>
+          <span class="cbox-lbl">Prototipo implementado (E3)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="snum">1 / 7</div>
+</section>
+
+<!-- ===== SLIDE 2: EL PROBLEMA ===== -->
+<section class="slide" id="s2">
+  <div class="body">
+    <span class="stag">El Problema</span>
+    <h1 class="t">Visibilidad tardia en la migracion a FMA</h1>
+    <div class="c2">
+      <div>
+        <span class="bignum">15.700</span>
+        <span class="biglbl">tecnicos intentaron usar FMA y la abandonaron</span>
+        <div style="margin-top:14px;">
+          <p class="bt" style="font-weight:600;margin-bottom:6px;">El desafio del Product Manager hoy</p>
+          <ul class="bul">
+            <li>No existe señal temprana de riesgo en las primeras 2 semanas</li>
+            <li>El PM interviene cuando el tecnico ya abandono: demasiado tarde</li>
+            <li>Sin priorizacion de cartera: todos los clientes parecen iguales</li>
+          </ul>
+        </div>
+        <div class="hlbox" style="margin-top:10px;">
+          <p>"¿Como identificar que tecnicos tienen riesgo de abandono en los primeros 14 dias, antes de que ocurra?"</p>
+        </div>
+      </div>
+      <div>
+        <p class="bt" style="font-weight:600;margin-bottom:9px;">Base de datos utilizada</p>
+        <div class="dgrid">
+          <div class="dbox hero">
+            <span class="dv">700K+</span>
+            <span class="dl">registros de eventos reales de ServiceTitan</span>
+          </div>
+          <div class="dbox">
+            <span class="dv">140</span>
+            <span class="dl">tecnicos unicos con historial de sesion</span>
+          </div>
+          <div class="dbox">
+            <span class="dv">54</span>
+            <span class="dl">clientes unicos en la muestra</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Contexto de la muestra</h3>
+          <p>Provista por ServiceTitan para calibrar parametros del modelo. Los hallazgos seran replicados por el equipo de Data Science sobre el dataset completo de produccion: aprox. 66.000 tecnicos activos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="snum">2 / 7</div>
+</section>
+
+<!-- ===== SLIDE 3: LA SOLUCION ===== -->
+<section class="slide" id="s3">
+  <div class="body">
+    <span class="stag">La Solucion</span>
+    <h1 class="t">Tres capas de analisis: describir, predecir, prescribir</h1>
+    <div class="c3" style="margin-bottom:10px;">
+      <div class="card">
+        <span class="layer-lbl">Descriptivo</span>
+        <h3>Factores de Adopcion</h3>
+        <p style="margin-bottom:9px;">Que comportamientos en las primeras 2 semanas distinguen al tecnico que retiene FMA del que la abandona?</p>
+        <div style="border-top:1px solid var(--brdrs);padding-top:7px;font-size:10px;color:var(--txt2);">
+          Prueba t de Welch · Chi cuadrado<br>
+          <strong style="color:var(--acc);font-size:11px;">10 factores</strong> con p &lt; 0.05
+        </div>
+      </div>
+      <div class="card" style="border-top:2px solid var(--acc);">
+        <span class="layer-lbl">Predictivo</span>
+        <h3>Puntuacion de Riesgo</h3>
+        <p style="margin-bottom:9px;">Probabilidad individual de retencion, agregada a nivel cliente para priorizar la cartera del PM.</p>
+        <div style="border-top:1px solid var(--brdrs);padding-top:7px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;text-align:center;">
+          <div><span style="font-size:16px;font-weight:900;color:var(--txt);display:block;font-family:'Arial Black',Arial,sans-serif;">0.829</span><span style="font-size:8px;color:var(--txt2);">AUC-ROC</span></div>
+          <div><span style="font-size:16px;font-weight:900;color:var(--txt);display:block;font-family:'Arial Black',Arial,sans-serif;">0.78</span><span style="font-size:8px;color:var(--txt2);">Sensibilidad</span></div>
+          <div><span style="font-size:16px;font-weight:900;color:var(--txt);display:block;font-family:'Arial Black',Arial,sans-serif;">0.82</span><span style="font-size:8px;color:var(--txt2);">F1-Score</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="layer-lbl">Prescriptivo</span>
+        <h3>Guia de Migracion</h3>
+        <p style="margin-bottom:9px;">Que accion concreta tomar con cada cliente segun su nivel de adopcion y el score de riesgo?</p>
+        <div style="border-top:1px solid var(--brdrs);padding-top:7px;font-size:10px;color:var(--txt2);">
+          4 segmentos de clientes<br>
+          SHAP top-3 por tecnico
+        </div>
+      </div>
+    </div>
+    <div class="flow">
+      <span class="fst">Comportamiento 14 dias</span>
+      <span class="arr">&#8594;</span>
+      <span class="fst">Random Forest</span>
+      <span class="arr">&#8594;</span>
+      <span class="fst">Score por tecnico</span>
+      <span class="arr">&#8594;</span>
+      <span class="fst">Agregacion cliente</span>
+      <span class="arr">&#8594;</span>
+      <span class="fst">Recomendacion accionable</span>
+    </div>
+    <div class="gbar">
+      <span class="gblbl">Garantias</span>
+      <span class="gbitem">AUC-ROC = 0.829 (supera umbral 0.70)</span>
+      <span class="gbsep">|</span>
+      <span class="gbitem"><strong style="color:var(--acc);">8 de cada 10</strong> abandonos detectados antes de ocurrir</span>
+      <span class="gbsep">|</span>
+      <span class="gbitem">Validacion fuera del tiempo: Feb-Mar 2026</span>
+      <span class="gbsep">|</span>
+      <span class="gbitem">4 modelos comparados</span>
+    </div>
+  </div>
+  <div class="snum">3 / 7</div>
+</section>
+
+<!-- ===== SLIDE 4: VISTA 1 ===== -->
+<section class="slide" id="s4">
+  <div class="body">
+    <span class="stag">Prototipo — Vista 1</span>
+    <h1 class="t">Factores de Adopcion: ¿que distingue a quien retiene FMA?</h1>
+    <div class="c2w">
+      <div class="data-panel">
+        <div class="dp-hdr">
+          <div class="dp-title">Comparacion estadistica: adoptantes vs. abandonos</div>
+          <div class="dp-q">Variables con diferencia significativa en los primeros 14 dias de uso</div>
+        </div>
+        <div class="dp-body">
+          <table class="vt">
+            <thead>
+              <tr>
+                <th>Variable</th>
+                <th class="pos">Adoptante</th>
+                <th class="neg">Abandono</th>
+                <th>p-valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Sesiones totales</td><td class="pg">53.1</td><td class="pr">11.5</td><td>2.3e-15 <span class="chk">✓</span></td></tr>
+              <tr><td>Dias activos</td><td class="pg">9.47</td><td class="pr">3.79</td><td>4.2e-19 <span class="chk">✓</span></td></tr>
+              <tr><td>Ratio dias activos</td><td class="pg">0.68</td><td class="pr">0.27</td><td>4.2e-19 <span class="chk">✓</span></td></tr>
+              <tr><td>Job Close Out</td><td class="pg">34.9</td><td class="pr">5.44</td><td>7.4e-09 <span class="chk">✓</span></td></tr>
+              <tr><td>Uso Time</td><td class="pg">67.0</td><td class="pr">15.0</td><td>4.3e-10 <span class="chk">✓</span></td></tr>
+              <tr><td>Eventos 2a semana</td><td class="pg">687</td><td class="pr">54.9</td><td>2.2e-10 <span class="chk">✓</span></td></tr>
+              <tr><td>% colegas en FMA</td><td class="pg">0.82</td><td class="pr">0.61</td><td>1.4e-04 <span class="chk">✓</span></td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:8px;font-size:9px;color:var(--txt2);">
+            10 de 10 factores con p &lt; 0.05 &nbsp;·&nbsp; umbral minimo requerido: 5
+          </div>
+        </div>
+      </div>
+      <div class="insights">
+        <p class="ins-lbl">Lo que muestra</p>
+        <ul class="ins-list">
+          <li><strong>10 de 10</strong> factores resultaron estadisticamente significativos, superando el minimo de 5 requerido.</li>
+          <li>Los adoptantes tienen <strong>4.7x</strong> mas sesiones y <strong>2.5x</strong> mas dias activos en las primeras 2 semanas. <span>El patron es claro y consistente.</span></li>
+          <li><strong>Job Close Out y Uso Time</strong> son los mayores diferenciadores en valor absoluto: el onboarding debe priorizarlos.</li>
+          <li>El <strong>efecto de red</strong> importa: el % de colegas ya en FMA es un predictor significativo de retencion.</li>
+          <li>Estos 10 factores son los <strong>inputs del modelo predictivo</strong> en Vista 2.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="snum">4 / 7</div>
+</section>
+
+<!-- ===== SLIDE 5: VISTA 2 ===== -->
+<section class="slide" id="s5">
+  <div class="body">
+    <span class="stag">Prototipo — Vista 2</span>
+    <h1 class="t">Puntuacion de Riesgo: ¿a que clientes intervenir primero?</h1>
+    <div class="c2w">
+      <div class="data-panel">
+        <div class="dp-hdr">
+          <div class="dp-title">Cartera ordenada por score de retencion</div>
+          <div class="dp-q">Clientes ordenados de mayor a menor riesgo de abandono</div>
+        </div>
+        <div class="dp-body">
+          <div class="kgrid" style="margin-bottom:4px;">
+            <div class="kpi"><span class="kv ac">34</span><span class="kl">Riesgo critico</span></div>
+            <div class="kpi"><span class="kv">10</span><span class="kl">Riesgo alto</span></div>
+            <div class="kpi"><span class="kv">134</span><span class="kl">Total clientes</span></div>
+          </div>
+          <div class="kgrid two" style="margin-bottom:10px;">
+            <div class="kpi"><span class="kv ac">86%</span><span class="kl">Estancados en riesgo alto/critico</span></div>
+            <div class="kpi"><span class="kv">0.829</span><span class="kl">AUC-ROC del modelo</span></div>
+          </div>
+          <table class="ct">
+            <thead>
+              <tr><th>Cliente</th><th>Nivel</th><th>Score</th><th>% FMA</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>#4511396373</td><td><span class="bcrit">Critico</span></td><td>4%</td><td>33%</td></tr>
+              <tr><td>#4236090983</td><td><span class="bcrit">Critico</span></td><td>4%</td><td>30%</td></tr>
+              <tr><td>#802384206</td><td><span class="bcrit">Critico</span></td><td>4%</td><td>70%</td></tr>
+              <tr><td>#3464603165</td><td><span class="bcrit">Critico</span></td><td>5%</td><td>58%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="insights">
+        <p class="ins-lbl">Lo que muestra</p>
+        <ul class="ins-list">
+          <li><strong>34 clientes</strong> en riesgo critico requieren intervencion inmediata del equipo de Customer Success.</li>
+          <li>El <strong>86%</strong> de los clientes estancados (retencion &lt; 50%) estan correctamente clasificados como alto/critico. <span>El modelo discrimina bien.</span></li>
+          <li>Al seleccionar un cliente, la vista muestra los <strong>3 factores SHAP</strong> que explican su riesgo especifico: no "tiene riesgo", sino por que.</li>
+          <li>Sensibilidad = <strong>0.78</strong>: el modelo detecta 8 de cada 10 abandonos reales antes de que ocurran.</li>
+          <li>El score por cliente es el <strong>promedio ponderado</strong> de los scores individuales de sus tecnicos.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="snum">5 / 7</div>
+</section>
+
+<!-- ===== SLIDE 6: VISTA 3 ===== -->
+<section class="slide" id="s6">
+  <div class="body">
+    <span class="stag">Prototipo — Vista 3</span>
+    <h1 class="t">Guia de Migracion: ¿que hacer con cada segmento?</h1>
+    <div class="c2w">
+      <div class="data-panel">
+        <div class="dp-hdr">
+          <div class="dp-title">Segmentacion de cartera por nivel de adopcion FMA</div>
+          <div class="dp-q">134 clientes clasificados segun % de tecnicos que usan FMA activamente</div>
+        </div>
+        <div class="dp-body">
+          <div class="sgrid">
+            <div class="smini crit"><span class="sn">7</span><span class="sl">Migrar con prioridad</span><span class="sd">&lt; 20% en FMA</span></div>
+            <div class="smini"><span class="sn">15</span><span class="sl">Activar funcionalidades</span><span class="sd">20–39% en FMA</span></div>
+            <div class="smini"><span class="sn">19</span><span class="sl">Monitorear adopcion</span><span class="sd">40–69% en FMA</span></div>
+            <div class="smini"><span class="sn">93</span><span class="sl">En buen camino</span><span class="sd">&gt;= 70% en FMA</span></div>
+          </div>
+          <div class="rmini"><b>Seg. 1:</b> Activar Job Close Out y Time. Asignar CSM dedicado 30 dias. Evaluar viabilidad si &lt;5 tecnicos activos.</div>
+          <div class="rmini"><b>Seg. 2:</b> Superar umbral 40% en 4 semanas. Seguimiento bisemanal del ratio de dias activos.</div>
+          <div style="margin-top:6px;background:var(--acc-a);border:1px solid var(--acc-b);border-radius:2px;padding:6px 10px;text-align:center;">
+            <span style="font-size:13px;font-weight:900;color:var(--acc);font-family:'Arial Black',Arial,sans-serif;">Q4: 78.6%&nbsp;&nbsp;·&nbsp;&nbsp;Q1: 0.0%</span><br>
+            <span style="font-size:8px;color:var(--txt2);">Diferencia de retencion entre cuartiles extremos: 78.6 pp</span>
+          </div>
+        </div>
+      </div>
+      <div class="insights">
+        <p class="ins-lbl">Lo que muestra</p>
+        <ul class="ins-list">
+          <li>El <strong>40%</strong> es el umbral de inflexion: a partir de ahi la adopcion tiende a sostenerse por efecto de red entre colegas.</li>
+          <li><strong>93 clientes</strong> (69% de la cartera) ya superan el 70%. No requieren intervencion activa.</li>
+          <li>Solo <strong>7 clientes</strong> estan en la zona critica (&lt;20%): son la prioridad inmediata de Customer Success.</li>
+          <li>Las recomendaciones por segmento estan ancladas en los <strong>factores SHAP</strong> identificados en Vista 1.</li>
+          <li>La diferencia Q4 vs Q1 (<strong>78.6 pp</strong>) confirma que el modelo discrimina correctamente la cartera.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="snum">6 / 7</div>
+</section>
+
+<!-- ===== SLIDE 7: PROPUESTA DE VALOR ===== -->
+<section class="slide" id="s7">
+  <div class="body">
+    <span class="stag">Propuesta de Valor</span>
+    <h1 class="t">Impacto esperado y condiciones de adopcion</h1>
+    <div class="c2">
+      <div>
+        <p style="font-size:8px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Antes y despues</p>
+        <table class="cmp">
+          <tr><th>Sin el tablero</th><th>Con FMA Adoption Intelligence</th></tr>
+          <tr><td>PM interviene cuando el tecnico ya abandono</td><td>PM interviene en los primeros 14 dias</td></tr>
+          <tr><td>Sin priorizacion de cartera</td><td>Cartera ordenada por score de riesgo</td></tr>
+          <tr><td>Sin explicacion del riesgo</td><td>Factor SHAP principal por tecnico</td></tr>
+          <tr><td>Reporte manual</td><td>Actualizable cada 14 dias</td></tr>
+        </table>
+        <div class="qm">
+          <span class="qb">Q4: 78.6%&nbsp;&nbsp;·&nbsp;&nbsp;Q1: 0.0%</span>
+          <span class="qs">El modelo discrimina la cartera: diferencia de retencion de 78.6 pp entre cuartiles extremos</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="card" style="padding:9px 13px;">
+          <h3>Despliegue academico actual</h3>
+          <p>Streamlit Community Cloud · Sin costo · Acceso publico sin instalacion</p>
+        </div>
+        <div class="card" style="padding:9px 13px;border-top:2px solid var(--acc);">
+          <h3>Ruta a produccion</h3>
+          <p>Migracion a Tableau + Snowflake. Extraccion bisemanal (~5K tecnicos). Re-entrenamiento estimado: 8–14 min.</p>
+        </div>
+        <div class="card" style="padding:9px 13px;">
+          <h3>Riesgo principal y mitigacion</h3>
+          <p>Drift de cohortes por nuevas versiones de app: monitor KS por variable + re-entrenamiento automatico.</p>
+        </div>
+        <div class="card" style="padding:9px 13px;">
+          <h3>Proximos pasos</h3>
+          <p>Ampliar muestra a 2.000–5.000 tecnicos (Q3 2026) · Despliegue en Tableau con actualizacion bisemanal.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="snum">7 / 7</div>
+</section>
+
+<!-- Corner logos — after slides so they float above -->
+<div class="clogo l">
+  <span class="lmark andes">U</span>
+  <span class="lname">Uniandes</span>
+</div>
+<div class="clogo r">
+  <span class="lname">ServiceTitan</span>
+  <span class="lmark st">ST</span>
+</div>
+
+</div><!-- /deck -->
+
+<div class="nav-bar">
+  <button onclick="prev()">&#8592; Anterior</button>
+  <span id="counter">1 / 7</span>
+  <button onclick="next()">Siguiente &#8594;</button>
+</div>
+<p class="hint">Flechas del teclado para navegar &nbsp;·&nbsp; Ctrl+P para exportar a PDF</p>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let cur = 0;
+function show(n){
+  slides[cur].classList.remove('active');
+  cur = (n + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  document.getElementById('counter').textContent = (cur+1)+' / '+slides.length;
+}
+function next(){ show(cur+1); }
+function prev(){ show(cur-1); }
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ') next();
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') prev();
+});
+</script>
+</body>
+</html>

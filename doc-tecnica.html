@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMA Adoption Intelligence — Documentación técnica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="site-sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-name"><span class="sidebar-brand-dot"></span>FMA Adoption Intelligence</div>
+    <div class="sidebar-brand-sub">Maestría MIAD &nbsp;&middot;&nbsp; Uniandes</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Principal</span>
+      <a href="index.html" class="sidebar-link">Inicio</a>
+      <a href="demo.html" class="sidebar-link">Demo</a>
+      <a href="evaluacion.html" class="sidebar-link">Evaluación</a>
+      <a href="presentacion.html" class="sidebar-link">Presentación</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Documentación</span>
+      <a href="documentacion.html" class="sidebar-link sidebar-sub">Arquitectura del pipeline</a>
+      <a href="doc-modelo.html" class="sidebar-link sidebar-sub">Modelo predictivo</a>
+      <a href="doc-manual.html" class="sidebar-link sidebar-sub">Manual de usuario</a>
+      <a href="doc-tecnica.html" class="sidebar-link sidebar-sub active">Documentación técnica</a>
+      <a href="doc-reporte.html" class="sidebar-link sidebar-sub">Reporte experimentos E2</a>
+      <a href="doc-codigo.html" class="sidebar-link sidebar-sub">Código fuente</a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="site-main">
+
+<div class="page-hero">
+  <div class="wrap">
+    <div class="sec-tag">R4c — Documentación técnica</div>
+    <h1>Documentación técnica del sistema</h1>
+    <p>Descripción detallada de la implementación: pipeline interno, modelo, variables, métricas y proceso de re-entrenamiento.</p>
+  </div>
+</div>
+
+<!-- 1. ARQUITECTURA INTERNA -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="doc-h3">1. Arquitectura interna del pipeline</div>
+    <p class="doc-p">El pipeline no re-entrena el modelo. El modelo RF fue entrenado en la entrega 2 y se carga serializado desde <code class="doc-inline-code">models/rf_model.joblib</code>.</p>
+    <div class="arch-wrap">
+      <div class="arch-2row-layout">
+
+        <!-- ── FILA 1: Fases 1, 2, 3 ── -->
+        <div class="arch-hrow">
+          <div class="arch-node hl">
+            <div class="arch-node-tag">Fase 1</div>
+            <div class="arch-node-name">etl.run_phase1()</div>
+            <ul class="arch-node-list">
+              <li>Carga los tres conjuntos fuente: tenants, técnicos y eventos FullStory desde <code>data/raw/</code></li>
+              <li>Elimina duplicados, registros sin ID de técnico y entradas fuera del rango temporal de análisis</li>
+              <li>Normaliza identificadores entre fuentes (tenant_id, technician_id) para garantizar integridad referencial entre tablas</li>
+              <li>Output: tres DataFrames limpios en memoria</li>
+            </ul>
+          </div>
+          <div class="arch-hsep"><div class="arch-line-h"></div><div class="arch-arrow-tip-r"></div></div>
+          <div class="arch-node hl">
+            <div class="arch-node-tag">Fase 2</div>
+            <div class="arch-node-name">etl.build_feature_store()</div>
+            <ul class="arch-node-list">
+              <li>Aplica la ventana de observación: toma solo los primeros 14 días de cada técnico desde su primera sesión en FMA</li>
+              <li>Calcula las 57 variables: bloque A comportamental (frecuencia, días activos, sesiones, eventos por mitad de ventana) y bloque B de contexto del tenant</li>
+              <li>Genera la variable objetivo <code>y</code>: retención mayor o igual a 15 días activos en los 60 días posteriores a la ventana</li>
+              <li>Output: <code>feature_store.parquet</code></li>
+            </ul>
+          </div>
+          <div class="arch-hsep"><div class="arch-line-h"></div><div class="arch-arrow-tip-r"></div></div>
+          <div class="arch-node hl">
+            <div class="arch-node-tag">Fase 3</div>
+            <div class="arch-node-name">RF pipeline (joblib)</div>
+            <ul class="arch-node-list">
+              <li>Carga el modelo serializado (Random Forest, 20 árboles, class_weight="balanced") desde <code>models/rf_model.joblib</code></li>
+              <li>Aplica el ColumnTransformer embebido: passthrough para variables numéricas, OneHotEncoder para categóricas</li>
+              <li>Genera <code>predict_proba()</code>: score continuo en [0, 1] que representa la probabilidad de retención a 90 días de cada técnico</li>
+              <li>Output: <code>analytical_dataset.parquet</code></li>
+            </ul>
+            <span class="arch-node-time">Scoring: &lt; 0.1 seg</span>
+          </div>
+        </div>
+
+        <!-- ── CONECTOR EN L: Fase 3 baja y gira a la izquierda hacia Fase 4 ── -->
+        <div class="arch-conn-row">
+          <div class="arch-l-elbow"></div>
+        </div>
+
+        <!-- ── FILA 2: Fases 4 y 5, centradas ── -->
+        <div class="arch-hrow arch-hrow-center">
+          <div class="arch-node hl">
+            <div class="arch-node-tag">Fase 4</div>
+            <div class="arch-node-name">SHAP TreeExplainer</div>
+            <ul class="arch-node-list">
+              <li>Aplica SHAP sobre el Random Forest serializado para calcular la contribución marginal de cada variable al score individual de cada técnico</li>
+              <li>Extrae los top-3 factores con mayor impacto positivo y negativo por técnico, que son la base de las tarjetas de intervención del tablero prescriptivo</li>
+              <li>Output: <code>shap_values.parquet</code> (valores por técnico), <code>feature_importance.parquet</code> (importancia global del modelo)</li>
+            </ul>
+            <span class="arch-node-time">~1.5 seg (muestra)</span>
+          </div>
+          <div class="arch-hsep"><div class="arch-line-h"></div><div class="arch-arrow-tip-r"></div></div>
+          <div class="arch-node">
+            <div class="arch-node-tag">Fase 5</div>
+            <div class="arch-node-name">Agregación por tenant</div>
+            <ul class="arch-node-list">
+              <li>Agrupa los scores individuales por <code>tenant_id</code> para elevar el análisis al nivel del cliente, que es la unidad de negocio del tablero</li>
+              <li>Calcula score promedio ponderado, cuartil de riesgo (Q1 = alto riesgo, Q4 = baja prioridad) y tasa de retención real del cliente</li>
+              <li>Insumo principal del tablero prescriptivo para priorizar intervenciones por cliente</li>
+              <li>Output: <code>tenant_scores.parquet</code></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. CONFIG -->
+<section>
+  <div class="wrap">
+    <div class="doc-h3">2. Configuración de rutas (src/config.py)</div>
+    <p class="doc-p">Todas las rutas de archivos y parámetros globales del sistema se centralizan en <code class="doc-inline-code">src/config.py</code>. Esta decisión de diseño permite cambiar la ubicación de los datos, el modelo o los resultados editando un solo archivo, sin necesidad de buscar y reemplazar rutas en múltiples módulos. En producción, este archivo sería la única modificación necesaria para apuntar a Snowflake en lugar de archivos CSV locales.</p>
+    <table class="doc-table" style="max-width:680px;">
+      <thead><tr><th>Constante</th><th>Valor</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>RAW_DIR</code></td><td><code>data/raw/</code></td><td>CSVs fuente de entrada</td></tr>
+        <tr><td><code>OUT_DIR</code></td><td><code>data/</code></td><td>Parquet de salida del pipeline</td></tr>
+        <tr><td><code>RF_MODEL</code></td><td><code>models/rf_model.joblib</code></td><td>Pipeline scikit-learn serializado</td></tr>
+        <tr><td><code>RF_METADATA</code></td><td><code>models/rf_model_metadata.json</code></td><td>Features y métricas del modelo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 3. VARIABLE OBJETIVO -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="doc-h3">3. Variable objetivo</div>
+    <p class="doc-p">El modelo predice una variable binaria que representa si un técnico "retiene" el uso de FMA a largo plazo. La definición fue construida junto al equipo de producto de ServiceTitan para capturar adopción real y no uso ocasional o de prueba:</p>
+    <div class="code-block" style="max-width:620px;">
+      <div><span class="comment">y = 1  si el técnico registra &ge; 15 días activos en FMA durante los 60 días</span></div>
+      <div><span class="comment">        posteriores a la ventana de observación de 14 días</span></div>
+      <div><span class="comment">y = 0  si no lo hace</span></div>
+    </div>
+    <p class="doc-p" style="margin-top:16px;"><strong>Justificación de los umbrales:</strong> La ventana de observación de 14 días captura el comportamiento inicial, que es cuando los hábitos de uso de la aplicación se forman o no. Los 60 días de seguimiento son suficientes para observar si el técnico estableció un patrón sostenido. El umbral de 15 días activos equivale a aproximadamente 4 días de uso por semana durante el período de seguimiento, que el equipo de producto definió como el nivel mínimo de adopción operativa real (no esporádica).</p>
+  </div>
+</section>
+
+<!-- 4. VARIABLES -->
+<section>
+  <div class="wrap">
+    <div class="doc-h3">4. Top-20 variables por score combinado</div>
+    <p class="doc-p">Para seleccionar las variables más relevantes del feature store de 57 variables, se calculó un <strong>score combinado</strong> que pondera dos fuentes de evidencia complementarias:</p>
+    <ul class="doc-ul" style="margin-bottom:16px;">
+      <li><strong>Importancia RF (60%):</strong> qué tanto reduce la impureza de los nodos en el árbol la variable, según el modelo entrenado.</li>
+      <li><strong>Información mutua / chi-cuadrado (40%):</strong> qué tan bien separa estadísticamente a adoptantes de desertores, independiente del modelo.</li>
+    </ul>
+    <p class="doc-p">Score combinado = 0.6 × RF_importance_norm + 0.4 × MI/chi2_norm. La normalización escala ambas métricas a [0,1] antes de combinarlas. La variable con score 1.000 es la más predictiva del modelo.</p>
+    <table class="doc-table" style="max-width:540px;">
+      <thead><tr><th>Variable</th><th>Tipo</th><th>Score</th></tr></thead>
+      <tbody>
+        <tr><td><code>app_version_max</code></td><td>Categórica</td><td>1.000</td></tr>
+        <tr><td><code>obs_events_late_half_w14</code></td><td>Numérica</td><td>0.398</td></tr>
+        <tr><td><code>device_model_mode</code></td><td>Categórica</td><td>0.377</td></tr>
+        <tr><td><code>obs_active_days_ratio_w14</code></td><td>Numérica</td><td>0.367</td></tr>
+        <tr><td><code>obs_sessions_count_w14</code></td><td>Numérica</td><td>0.348</td></tr>
+        <tr><td><code>obs_active_days_w14</code></td><td>Numérica</td><td>0.323</td></tr>
+        <tr><td><code>obs_active_days_late_half_w14</code></td><td>Numérica</td><td>0.247</td></tr>
+        <tr><td><code>obs_time_count_w14</code></td><td>Numérica</td><td>0.225</td></tr>
+        <tr><td colspan="3" style="color:var(--faint);font-style:italic;font-size:12px;">+ 12 variables adicionales (scores menores, ver repositorio)</td></tr>
+      </tbody>
+    </table>
+    <p class="doc-p" style="margin-top:16px;">La variable <code class="doc-inline-code">app_version_max</code> lidera con score normalizado 1.0, lo que indica que la versión de la app que el técnico ha usado es el predictor más fuerte de retención. Esto sugiere que técnicos con acceso a versiones más recientes de FMA (con más funcionalidades estables) tienen mayor probabilidad de retener la plataforma. Las variables <code class="doc-inline-code">obs_*_w14</code> capturan el comportamiento observado durante la ventana de 14 días.</p>
+  </div>
+</section>
+
+<!-- 5. PREPROCESAMIENTO -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="doc-h3">5. Preprocesamiento del modelo RF</div>
+    <p class="doc-p">El modelo no recibe los datos crudos directamente: usa un Pipeline de scikit-learn que aplica el preprocesamiento correcto a cada tipo de variable antes de entrenar el Random Forest. Las variables numéricas se pasan sin transformación (passthrough) ya que Random Forest no requiere normalización. Las variables categóricas se codifican con OneHotEncoder, que crea una columna binaria por cada categoría posible. La opción <code class="doc-inline-code">handle_unknown="ignore"</code> permite que el modelo maneje categorías no vistas en producción sin fallar.</p>
+    <div class="code-block" style="max-width:620px;">
+      <div><span class="arg">Pipeline</span><span class="cmd">([</span></div>
+      <div>&nbsp;&nbsp;<span class="comment">("pre", ColumnTransformer([</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">("num", "passthrough", top_num),   # 15 numéricas</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">("cat", OneHotEncoder(handle_unknown="ignore"), top_cat),  # 5 categóricas OHE</span></div>
+      <div>&nbsp;&nbsp;<span class="comment">])),</span></div>
+      <div>&nbsp;&nbsp;<span class="comment">("clf", RandomForestClassifier(class_weight="balanced", random_state=42))</span></div>
+      <div><span class="cmd">])</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. MÉTRICAS -->
+<section>
+  <div class="wrap">
+    <div class="doc-h3">6. Métricas de validación out-of-time</div>
+    <p class="doc-p">La validación out-of-time simula las condiciones reales de producción: el modelo nunca vio los datos de validación durante el entrenamiento. Las métricas se calculan sobre el conjunto de validación (n=56 técnicos, período febrero-marzo 2026). Cada métrica responde una pregunta de negocio distinta: el AUC-ROC mide qué tan bien ordena el modelo el riesgo; la sensibilidad mide cuántos abandonos reales detecta; la precisión mide cuántas alarmas generadas son reales; el F1-Score balancea sensibilidad y precisión.</p>
+    <table class="doc-table" style="max-width:620px;">
+      <thead><tr><th>Métrica</th><th>Valor</th><th>Umbral requerido</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr><td>AUC-ROC</td><td>0.829</td><td>&ge; 0.70 (R5)</td><td><span class="badge badge-green">Cumple</span></td></tr>
+        <tr><td>Recall clase abandono</td><td>0.78</td><td>&ge; 0.70 (R7)</td><td><span class="badge badge-green">Cumple</span></td></tr>
+        <tr><td>Precisión clase abandono</td><td>0.86</td><td>&ge; 0.60 (R8)</td><td><span class="badge badge-green">Cumple</span></td></tr>
+        <tr><td>F1-Score clase abandono</td><td>0.82</td><td>&ge; 0.65 (R9)</td><td><span class="badge badge-green">Cumple</span></td></tr>
+        <tr><td>Delta AUC train-val</td><td>16.8 pp</td><td>&le; 5 pp (R11)</td><td><span class="badge badge-amber">No cumple</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 7. REENTRENAMIENTO -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="doc-h3">7. Proceso de re-entrenamiento</div>
+    <p class="doc-p">Frecuencia recomendada: bisemanal o cuando lleguen datos de &ge;50 técnicos nuevos. Pasos:</p>
+    <ol style="margin-left:20px;margin-bottom:16px;">
+      <li style="margin-bottom:6px;font-size:14px;color:var(--muted);">Copiar CSVs a <code class="doc-inline-code">data/raw/</code></li>
+      <li style="margin-bottom:6px;font-size:14px;color:var(--muted);">Ejecutar <code class="doc-inline-code">python -m src.run</code></li>
+      <li style="margin-bottom:6px;font-size:14px;color:var(--muted);">Copiar el nuevo modelo a <code class="doc-inline-code">models/rf_model.joblib</code></li>
+      <li style="margin-bottom:6px;font-size:14px;color:var(--muted);">Actualizar <code class="doc-inline-code">rf_model_metadata.json</code></li>
+      <li style="margin-bottom:6px;font-size:14px;color:var(--muted);">Ejecutar <code class="doc-inline-code">python pipeline.py</code></li>
+      <li style="font-size:14px;color:var(--muted);">Verificar métricas en el tablero</li>
+    </ol>
+    <p class="doc-p"><strong>Criterios de alerta:</strong> AUC cae por debajo de 0.70, distribución de <code class="doc-inline-code">app_version_max</code> cambia significativamente, o se incorporan &gt;500 técnicos nuevos.</p>
+  </div>
+</section>
+
+<!-- 8. TIEMPOS -->
+<section>
+  <div class="wrap">
+    <div class="doc-h3">8. Tiempos de ejecución (R13)</div>
+    <p class="doc-p">Los tiempos se midieron sobre la muestra académica (n=140 técnicos, 54 clientes, ~700K eventos) y se proyectan a producción asumiendo ~5.000 técnicos activos y un dataset completo de ServiceTitan. El escalado es aproximadamente lineal para el ETL y el SHAP; el scoring RF es prácticamente instantáneo gracias a la serialización del modelo. La proyección a producción asume hardware equivalente a un servidor de cómputo estándar con 8 núcleos y 16 GB de RAM.</p>
+    <table class="doc-table" style="max-width:660px;">
+      <thead><tr><th>Componente</th><th>Muestra (n=140)</th><th>Producción estimada (n=66K)</th></tr></thead>
+      <tbody>
+        <tr><td>ETL completo</td><td>~1.5 seg</td><td>~5-8 min</td></tr>
+        <tr><td>Scoring RF</td><td>&lt; 0.1 seg</td><td>&lt; 1 min</td></tr>
+        <tr><td>SHAP TreeExplainer</td><td>~1.5 seg</td><td>~2-4 min</td></tr>
+        <tr><td>Agregación tenant</td><td>&lt; 0.1 seg</td><td>&lt; 1 min</td></tr>
+        <tr><td><strong>Total pipeline</strong></td><td><strong>~3.8 seg</strong></td><td><strong>&lt; 10 min</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="inst-logos">
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-uniandes"><img src="assets/logo-uniandes.png" alt="Uniandes"></div>
+        <div><div class="inst-name-w">UNIANDES</div><div class="inst-sub-w">Maestr&iacute;a MIAD</div></div>
+      </div>
+      <div class="inst-divider"></div>
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-st"><img src="assets/logo-servicetitan.png" alt="ServiceTitan"></div>
+        <div><div class="inst-name-w">ServiceTitan</div><div class="inst-sub-w">Product, FMA</div></div>
+      </div>
+    </div>
+    <div>
+      <a href="https://github.com/mbayonal/fma-adoption-intelligence" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app" target="_blank" rel="noopener">Prototipo</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /.site-main -->
+</div><!-- /.app-layout -->
+
+</body>
+</html>

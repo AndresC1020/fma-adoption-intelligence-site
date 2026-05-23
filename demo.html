@@ -1,0 +1,318 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMA Adoption Intelligence — Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="site-sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-name"><span class="sidebar-brand-dot"></span>FMA Adoption Intelligence</div>
+    <div class="sidebar-brand-sub">Maestría MIAD &nbsp;&middot;&nbsp; Uniandes</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Principal</span>
+      <a href="index.html" class="sidebar-link">Inicio</a>
+      <a href="demo.html" class="sidebar-link active">Demo</a>
+      <a href="evaluacion.html" class="sidebar-link">Evaluación</a>
+      <a href="presentacion.html" class="sidebar-link">Presentación</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Documentación</span>
+      <a href="documentacion.html" class="sidebar-link sidebar-sub">Arquitectura del pipeline</a>
+      <a href="doc-modelo.html" class="sidebar-link sidebar-sub">Modelo predictivo</a>
+      <a href="doc-manual.html" class="sidebar-link sidebar-sub">Manual de usuario</a>
+      <a href="doc-tecnica.html" class="sidebar-link sidebar-sub">Documentación técnica</a>
+      <a href="doc-reporte.html" class="sidebar-link sidebar-sub">Reporte experimentos E2</a>
+      <a href="doc-codigo.html" class="sidebar-link sidebar-sub">Código fuente</a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="site-main">
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="wrap">
+    <div class="sec-tag">Prototipo funcional</div>
+    <h1>Demo y acceso al tablero</h1>
+    <p>Accede al tablero interactivo desplegado en Streamlit Cloud y al código fuente completo.</p>
+  </div>
+</div>
+
+<!-- ACCESO PRINCIPAL -->
+<section class="bg-white">
+  <div class="wrap">
+    <div style="background:var(--acc-light);border:1px solid var(--acc-bd);border-radius:var(--r);padding:20px 28px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);margin-bottom:4px;">Prototipo activo</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:2px;">FMA Adoption Intelligence</div>
+        <div style="font-size:13px;color:var(--muted);">Tablero con tres vistas analíticas. No requiere instalación ni cuenta.</div>
+      </div>
+      <a href="https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app"
+         target="_blank" rel="noopener" class="btn btn-primary" style="white-space:nowrap;flex-shrink:0;">
+        Abrir prototipo en Streamlit &nearr;
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- GUÍA DE USO -->
+<section>
+  <div class="wrap">
+    <div class="sec-tag">Las tres vistas del tablero</div>
+    <h2>¿Qué responde cada vista?</h2>
+    <p class="sec-desc">Cada vista aborda un nivel distinto de análisis. Las tres son complementarias: la descriptiva explica el pasado, la predictiva anticipa el futuro y la prescriptiva orienta la acción.</p>
+
+    <!-- V1 -->
+    <div style="margin-bottom:48px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <div class="step-num" style="width:40px;height:40px;font-size:14px;">V1</div>
+        <div>
+          <div style="font-size:17px;font-weight:700;color:var(--text);">Factores de adopción</div>
+          <div style="font-size:13px;color:var(--acc);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Análisis descriptivo</div>
+        </div>
+      </div>
+      <p class="doc-p">
+        Responde: ¿qué comportamientos en los primeros 14 días distinguen a un técnico que retendrá FMA de uno que la abandonará?
+        Los 10 factores estadísticamente significativos (p &lt; 0.05) se presentan ordenados por magnitud de efecto con la comparación directa entre grupo adoptante y grupo abandono.
+      </p>
+      <ul class="doc-ul">
+        <li>Filtra por industria, tamaño de cliente o plataforma de dispositivo para analizar segmentos específicos.</li>
+        <li>La tabla comparativa muestra promedios y p-valor de cada variable.</li>
+        <li>El gráfico de funcionalidades identifica qué herramientas (Job Close Out, Time, Payment) marcan la diferencia en la primera semana.</li>
+        <li>El ranking SHAP global ordena las 10 variables con mayor impacto en el modelo predictivo.</li>
+      </ul>
+      <figure class="sc-fig sc-missing">
+        <img src="assets/screenshots/v1-tabla-comparativa.png"
+             alt="Vista 1 — Tabla comparativa de los 10 factores significativos"
+             onload="this.closest('figure').classList.remove('sc-missing')"
+             onerror="this.closest('figure').classList.add('sc-missing')">
+        <figcaption>Vista 1 — Tabla comparativa de los 10 factores: columnas Adoptante, Abandono, p-valor y barra SHAP de importancia global</figcaption>
+        <div class="img-ph">
+          <div class="img-ph-icon">&#128247;</div>
+          <div class="img-ph-body">
+            <div class="img-ph-label">Captura pendiente — Vista 1</div>
+            <div class="img-ph-desc">Tabla comparativa con los 10 factores significativos: columnas Adoptante, Abandono, p-valor y barra SHAP de importancia global</div>
+          </div>
+        </div>
+      </figure>
+      <figure class="sc-fig sc-missing" style="max-width:520px;">
+        <img src="assets/screenshots/v1-grafico-funcionalidades.png"
+             alt="Vista 1 — Gráfico de barras de funcionalidades"
+             onload="this.closest('figure').classList.remove('sc-missing')"
+             onerror="this.closest('figure').classList.add('sc-missing')">
+        <figcaption>Vista 1 — Gráfico de barras horizontales: funcionalidades (Job Close Out, Time, Payment...) con barra azul (adoptante) vs. gris (abandono)</figcaption>
+        <div class="img-ph">
+          <div class="img-ph-icon">&#128247;</div>
+          <div class="img-ph-body">
+            <div class="img-ph-label">Captura pendiente — Vista 1, gráfico de funcionalidades</div>
+            <div class="img-ph-desc">Gráfico de barras horizontales: funcionalidades (Job Close Out, Time, Payment...) con barra azul (adoptante) vs. gris (abandono)</div>
+          </div>
+        </div>
+      </figure>
+    </div>
+
+    <!-- V2 -->
+    <div style="margin-bottom:48px;padding-top:32px;border-top:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <div class="step-num" style="width:40px;height:40px;font-size:14px;">V2</div>
+        <div>
+          <div style="font-size:17px;font-weight:700;color:var(--text);">Puntuación de riesgo</div>
+          <div style="font-size:13px;color:var(--acc);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Análisis predictivo</div>
+        </div>
+      </div>
+      <p class="doc-p">
+        Responde: ¿qué clientes tienen mayor riesgo de que sus técnicos no retengan FMA?
+        La tabla principal ordena clientes de mayor a menor riesgo. El score de cada cliente es el promedio ponderado de los scores individuales de sus técnicos.
+      </p>
+      <ul class="doc-ul">
+        <li>Score por cliente en escala 0-100%: valores bajos indican mayor riesgo de abandono.</li>
+        <li>Filtra por nivel de riesgo (Crítico, Alto, Medio, Bajo) para concentrar la vista en los casos más urgentes.</li>
+        <li>Selecciona un cliente para ver el detalle individual de cada técnico con su score y sus 3 factores SHAP determinantes.</li>
+        <li>La columna de acción sugerida resume la recomendación operativa por cliente.</li>
+      </ul>
+      <figure class="sc-fig sc-missing">
+        <img src="assets/screenshots/v2-tabla-clientes.png"
+             alt="Vista 2 — Tabla de clientes ordenada por riesgo"
+             onload="this.closest('figure').classList.remove('sc-missing')"
+             onerror="this.closest('figure').classList.add('sc-missing')">
+        <figcaption>Vista 2 — Tabla de clientes ordenada por riesgo: columnas Cliente, Riesgo (badge color), Score retención (barra), % en FMA, Técnicos en riesgo crítico</figcaption>
+        <div class="img-ph">
+          <div class="img-ph-icon">&#128247;</div>
+          <div class="img-ph-body">
+            <div class="img-ph-label">Captura pendiente — Vista 2, tabla de clientes</div>
+            <div class="img-ph-desc">Tabla ordenada por riesgo con columnas: Cliente (ID), Riesgo (badge color), Score retención (barra), % en FMA, Técnicos en riesgo crítico</div>
+          </div>
+        </div>
+      </figure>
+      <figure class="sc-fig sc-missing">
+        <img src="assets/screenshots/v2-detalle-tecnicos.png"
+             alt="Vista 2 — Detalle de técnicos de un cliente seleccionado"
+             onload="this.closest('figure').classList.remove('sc-missing')"
+             onerror="this.closest('figure').classList.add('sc-missing')">
+        <figcaption>Vista 2 — Detalle de técnicos de un cliente seleccionado con score individual y factores SHAP top-3 por técnico</figcaption>
+        <div class="img-ph">
+          <div class="img-ph-icon">&#128247;</div>
+          <div class="img-ph-body">
+            <div class="img-ph-label">Captura pendiente — Vista 2, detalle de técnicos</div>
+            <div class="img-ph-desc">Tabla de técnicos de un cliente seleccionado con score individual y factores SHAP top-3 por técnico</div>
+          </div>
+        </div>
+      </figure>
+    </div>
+
+    <!-- V3 -->
+    <div style="padding-top:32px;border-top:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <div class="step-num" style="width:40px;height:40px;font-size:14px;">V3</div>
+        <div>
+          <div style="font-size:17px;font-weight:700;color:var(--text);">Guía de migración</div>
+          <div style="font-size:13px;color:var(--acc);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Análisis prescriptivo</div>
+        </div>
+      </div>
+      <p class="doc-p">
+        Responde: ¿qué acción concreta debe tomar el PM con cada cliente?
+        Los 54 clientes de la muestra se distribuyen en cuatro segmentos según el porcentaje de sus técnicos activos en FMA. Cada segmento tiene acciones diferenciadas respaldadas por el modelo.
+      </p>
+      <ul class="doc-ul">
+        <li><strong>Crítico (&lt;20% en FMA) — 7 clientes:</strong> intervención inmediata, acompañamiento activo primeros 30 días.</li>
+        <li><strong>A activar (20-39%) — 15 clientes:</strong> activar funcionalidades clave según SHAP dominante de cada técnico; objetivo: superar el umbral del 40% en 4 semanas.</li>
+        <li><strong>A monitorear (40-69%) — 19 clientes:</strong> mantener ritmo, recuperar técnicos rezagados con score 30-50%.</li>
+        <li><strong>En buen camino (&ge;70%) — 93 clientes:</strong> seguimiento estándar, sin tarjeta de intervención.</li>
+      </ul>
+      <figure class="sc-fig sc-missing">
+        <img src="assets/screenshots/v3-segmentos.png"
+             alt="Vista 3 — Cuatro tarjetas de segmentos de clientes"
+             onload="this.closest('figure').classList.remove('sc-missing')"
+             onerror="this.closest('figure').classList.add('sc-missing')">
+        <figcaption>Vista 3 — Cuatro tarjetas de segmento con conteo de clientes por color: rojo (Crítico), naranja (A activar), verde (A monitorear), azul (En buen camino)</figcaption>
+        <div class="img-ph">
+          <div class="img-ph-icon">&#128247;</div>
+          <div class="img-ph-body">
+            <div class="img-ph-label">Captura pendiente — Vista 3, segmentos</div>
+            <div class="img-ph-desc">Cuatro tarjetas de segmento con el conteo de clientes por color: rojo (Crítico), naranja (A activar), verde (A monitorear), azul (En buen camino)</div>
+          </div>
+        </div>
+      </figure>
+      <figure class="sc-fig sc-missing">
+        <img src="assets/screenshots/v3-tarjetas-accion.png"
+             alt="Vista 3 — Tarjetas de recomendación por segmento"
+             onload="this.closest('figure').classList.remove('sc-missing')"
+             onerror="this.closest('figure').classList.add('sc-missing')">
+        <figcaption>Vista 3 — Tarjetas de recomendación (Crítico, A activar, A monitorear) con acciones numeradas y respaldo del modelo</figcaption>
+        <div class="img-ph">
+          <div class="img-ph-icon">&#128247;</div>
+          <div class="img-ph-body">
+            <div class="img-ph-label">Captura pendiente — Vista 3, tarjetas de acción</div>
+            <div class="img-ph-desc">Las tres tarjetas de recomendación (roja, naranja, verde) con acciones numeradas y respaldo del modelo</div>
+          </div>
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- CÓDIGO FUENTE -->
+<section class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">Código fuente</div>
+    <h2>Repositorio GitHub</h2>
+    <p class="sec-desc">Código completo del pipeline de datos, modelo predictivo y tablero Streamlit.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;">
+      <a href="https://github.com/mbayonal/fma-adoption-intelligence"
+         target="_blank" rel="noopener" class="btn btn-primary">
+        Ver repositorio en GitHub &nearr;
+      </a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:980px;">
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:6px;">app.py</h3>
+        <p>Aplicación principal de Streamlit. Implementa las tres vistas analíticas (Factores, Riesgo, Guía) y la lógica de navegación entre ellas. Lee los archivos Parquet generados por el pipeline y expone los controles de filtrado interactivo. Desplegado en Streamlit Community Cloud, sin instalación local para el usuario final.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:6px;">pipeline.py</h3>
+        <p>Núcleo del sistema. Ejecuta cinco fases secuenciales: ETL (limpieza y unificación de fuentes), ingeniería de características (57 variables por técnico en ventana de 14 días), scoring con Random Forest, cálculo de SHAP values y agregación por cliente. Tiempo total: ~21 seg sobre la muestra académica y 8-14 min en producción con ~5K técnicos.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;margin-bottom:6px;">src/</h3>
+        <p>Módulos de soporte encapsulados para mantener el código organizado y reutilizable. <code>etl.py</code> contiene todas las transformaciones de datos y la construcción del feature store; <code>config.py</code> centraliza las rutas de archivos y los parámetros del sistema. Esta separación permite cambiar fuentes de datos o rutas sin modificar el pipeline principal.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EJECUTAR LOCALMENTE -->
+<section>
+  <div class="wrap">
+    <div class="sec-tag">Ejecución local</div>
+    <h2>Cómo correr el proyecto</h2>
+    <p class="sec-desc">
+      Requiere Python 3.9+. Los datos de muestra están incluidos en el repositorio
+      (n=140 técnicos, 54 clientes).
+    </p>
+    <div class="code-block">
+      <div><span class="comment"># 1. Clonar el repositorio</span></div>
+      <div><span class="cmd">git clone</span> <span class="arg">https://github.com/mbayonal/fma-adoption-intelligence.git</span></div>
+      <br>
+      <div><span class="comment"># 2. Crear y activar entorno virtual</span></div>
+      <div><span class="cmd">python -m venv</span> <span class="arg">.venv</span></div>
+      <div><span class="cmd">source .venv/bin/activate</span> <span class="comment">  # macOS/Linux</span></div>
+      <div><span class="arg">.venv\Scripts\Activate.ps1</span> <span class="comment">  # Windows PowerShell</span></div>
+      <br>
+      <div><span class="comment"># 3. Instalar dependencias</span></div>
+      <div><span class="cmd">pip install -r</span> <span class="arg">requirements.txt</span></div>
+      <br>
+      <div><span class="comment"># 4. Generar datos analíticos (~21 seg con datos de muestra)</span></div>
+      <div><span class="cmd">python</span> <span class="arg">pipeline.py</span></div>
+      <br>
+      <div><span class="comment"># 5. Lanzar el tablero</span></div>
+      <div><span class="cmd">streamlit run</span> <span class="arg">app.py</span></div>
+      <div><span class="comment"># Abre en http://localhost:8501</span></div>
+    </div>
+    <div class="notice" style="margin-top:16px;">
+      <strong>Nota:</strong> El tiempo del pipeline en producción (dataset completo ~5K técnicos)
+      es de 8-14 minutos según el hardware disponible. El manual de usuario detalla los requisitos
+      del sistema y el proceso completo.
+      <a href="documentacion.html" style="margin-left:6px;">Ver documentación &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="inst-logos">
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-uniandes"><img src="assets/logo-uniandes.png" alt="Uniandes"></div>
+        <div><div class="inst-name-w">UNIANDES</div><div class="inst-sub-w">Maestr&iacute;a MIAD</div></div>
+      </div>
+      <div class="inst-divider"></div>
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-st"><img src="assets/logo-servicetitan.png" alt="ServiceTitan"></div>
+        <div><div class="inst-name-w">ServiceTitan</div><div class="inst-sub-w">Product, FMA</div></div>
+      </div>
+    </div>
+    <div>
+      <a href="https://github.com/mbayonal/fma-adoption-intelligence" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app" target="_blank" rel="noopener">Prototipo</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /.site-main -->
+</div><!-- /.app-layout -->
+
+</body>
+</html>

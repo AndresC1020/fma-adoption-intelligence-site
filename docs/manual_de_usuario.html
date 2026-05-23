@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual de usuario — FMA Adoption Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-brand">
+      <span class="nav-dot"></span>FMA Adoption Intelligence
+    </a>
+    <div class="nav-links">
+      <a href="../index.html">Inicio</a>
+      <a href="../demo.html">Demo</a>
+      <a href="../documentacion.html" class="active">Documentación</a>
+      <a href="../evaluacion.html">Evaluación</a>
+      <a href="../presentacion.html">Presentación</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="wrap">
+    <div class="sec-tag">R3 — Manual de usuario</div>
+    <h1>Manual de usuario</h1>
+    <p>Guía completa del tablero FMA Adoption Intelligence para Product Managers. Cubre instalación, acceso, navegación por las tres vistas y actualización de datos.</p>
+  </div>
+</div>
+
+<!-- TOC -->
+<section class="bg-white" style="padding:32px 0;">
+  <div class="wrap">
+    <div class="doc-toc">
+      <div class="doc-toc-title">Contenido</div>
+      <ol>
+        <li><a href="#intro">Introducción</a></li>
+        <li><a href="#acceso">Acceso al sistema</a></li>
+        <li><a href="#estructura">Estructura general del tablero</a></li>
+        <li><a href="#v1">Vista 1 — Factores de adopción</a></li>
+        <li><a href="#v2">Vista 2 — Puntuación de riesgo</a></li>
+        <li><a href="#v3">Vista 3 — Guía de migración</a></li>
+        <li><a href="#actualizacion">Actualización de datos</a></li>
+        <li><a href="#faq">Preguntas frecuentes</a></li>
+        <li><a href="#glosario">Glosario de términos</a></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- SECCIÓN 1: INTRODUCCIÓN -->
+<section id="intro">
+  <div class="wrap">
+    <div class="sec-tag">1. Introducción</div>
+    <h2>¿Para qué sirve este sistema?</h2>
+    <p class="doc-p">
+      El tablero FMA Adoption Intelligence centraliza tres niveles de análisis para apoyar al equipo de Product en la gestión de la migración TMA hacia FMA: visibilidad descriptiva de comportamientos de adopción, capacidad predictiva para anticipar abandonos, y guía prescriptiva de acciones por segmento de cliente.
+    </p>
+    <p class="doc-p">
+      El sistema gestiona ~15.700 técnicos activos. Está diseñado para usuarios no técnicos: los Product Managers pueden tomar decisiones de priorización sin interpretar código ni modelos estadísticos. Toda la información se presenta en lenguaje de negocio.
+    </p>
+
+    <div class="doc-h3">1.1 Alcance del sistema</div>
+    <p class="doc-p">
+      El tablero cubre el ciclo completo de adopción desde la primera sesión del técnico hasta los 60 días posteriores, que es el período crítico de consolidación del hábito. El modelo analiza las primeras dos semanas de actividad, que son los predictores más fuertes de retención sostenida.
+    </p>
+
+    <div class="doc-h3">1.2 Estructura del documento</div>
+    <ul class="doc-ul">
+      <li>Sección 2: instalación y acceso al tablero</li>
+      <li>Secciones 4-6: guía de uso de cada una de las tres vistas</li>
+      <li>Sección 7: proceso de actualización de datos</li>
+      <li>Sección 8: preguntas frecuentes</li>
+      <li>Sección 9: glosario de términos técnicos</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECCIÓN 2: ACCESO -->
+<section id="acceso" class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">2. Acceso al sistema</div>
+    <h2>Dos formas de acceder al tablero</h2>
+
+    <div class="doc-h3">2.1 Acceso local (primera vez)</div>
+    <p class="doc-p">Requiere Python 3.10 o superior. Las librerías utilizadas no son compatibles con versiones anteriores. Sigue los cuatro pasos en el orden indicado.</p>
+
+    <div class="steps" style="max-width:740px;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Crear el entorno virtual</div>
+          <div class="step-desc">Crea un entorno aislado para evitar conflictos con otras instalaciones de Python.</div>
+          <div class="code-block" style="margin-top:12px;">
+            <div><span class="cmd">python3 -m venv</span> <span class="arg">.venv</span></div>
+          </div>
+          <div class="img-ph">
+            <div class="img-ph-icon">&#128247;</div>
+            <div class="img-ph-body">
+              <div class="img-ph-label">Captura pendiente</div>
+              <div class="img-ph-desc">Terminal mostrando la creación del entorno virtual</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Activar el entorno e instalar dependencias</div>
+          <div class="step-desc">Activa el entorno según tu sistema operativo, luego instala las dependencias del proyecto.</div>
+          <div class="code-block" style="margin-top:12px;">
+            <div><span class="comment"># macOS / Linux</span></div>
+            <div><span class="cmd">source</span> <span class="arg">.venv/bin/activate</span></div>
+            <br>
+            <div><span class="comment"># Windows (PowerShell)</span></div>
+            <div><span class="arg">.venv\Scripts\Activate.ps1</span></div>
+            <br>
+            <div><span class="cmd">pip install -r</span> <span class="arg">requirements.txt</span></div>
+          </div>
+          <div class="img-ph">
+            <div class="img-ph-icon">&#128247;</div>
+            <div class="img-ph-body">
+              <div class="img-ph-label">Captura pendiente</div>
+              <div class="img-ph-desc">Terminal con <code>pip install</code> completado exitosamente</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Generar los datos analíticos</div>
+          <div class="step-desc">Ejecuta el pipeline de datos. Este paso transforma los datos fuente en los archivos que el tablero necesita. Tarda aproximadamente 21 segundos con los datos de muestra incluidos (8-14 minutos en producción con ~5K técnicos).</div>
+          <div class="code-block" style="margin-top:12px;">
+            <div><span class="cmd">python</span> <span class="arg">pipeline.py</span></div>
+          </div>
+          <div class="img-ph">
+            <div class="img-ph-icon">&#128247;</div>
+            <div class="img-ph-body">
+              <div class="img-ph-label">Captura pendiente</div>
+              <div class="img-ph-desc">Terminal con el pipeline completado mostrando los 4 pasos: ETL, Scoring, SHAP, Agregación</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">Iniciar el tablero</div>
+          <div class="step-desc">Lanza el tablero. Streamlit inicia un servidor local accesible desde el navegador y abre automáticamente <code>http://localhost:8501</code>. Para compartir en red local, usa la URL <em>Network URL</em> que imprime Streamlit en la terminal.</div>
+          <div class="code-block" style="margin-top:12px;">
+            <div><span class="cmd">streamlit run</span> <span class="arg">app.py</span></div>
+            <div><span class="comment"># Abre en http://localhost:8501</span></div>
+          </div>
+          <div class="img-ph">
+            <div class="img-ph-icon">&#128247;</div>
+            <div class="img-ph-body">
+              <div class="img-ph-label">Captura pendiente</div>
+              <div class="img-ph-desc">Tablero recién abierto en el navegador, mostrando la barra superior con el nombre del proyecto y la fecha de última actualización</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-h3">2.2 Acceso en la nube</div>
+    <p class="doc-p">El tablero está publicado en Streamlit Community Cloud. No requiere instalación local ni cuenta. Se abre directamente desde cualquier navegador.</p>
+    <div style="margin-bottom:16px;">
+      <a href="https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app"
+         target="_blank" rel="noopener" class="btn btn-primary">
+        Abrir tablero en la nube &nearr;
+      </a>
+    </div>
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">URL del tablero en la barra de direcciones del navegador</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECCIÓN 3: ESTRUCTURA -->
+<section id="estructura">
+  <div class="wrap">
+    <div class="sec-tag">3. Estructura general</div>
+    <h2>Las tres vistas del tablero</h2>
+    <p class="doc-p">El tablero se organiza en tres pestañas accesibles desde la parte superior. Cada vista responde a un tipo de pregunta diferente y se complementa con las otras dos.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Barra de pestañas con las tres vistas: Factores de Adopción | Puntuación de Riesgo | Guía de Migración</div>
+      </div>
+    </div>
+
+    <table class="doc-table" style="max-width:740px;">
+      <thead>
+        <tr>
+          <th>Pestaña</th>
+          <th>Tipo de análisis</th>
+          <th>Pregunta que responde</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Factores de adopción</strong></td>
+          <td>Descriptivo</td>
+          <td>¿Qué comportamientos distinguen al técnico que adopta FMA de manera sostenida?</td>
+        </tr>
+        <tr>
+          <td><strong>Puntuación de riesgo</strong></td>
+          <td>Predictivo</td>
+          <td>¿Qué clientes tienen mayor riesgo de migración fallida?</td>
+        </tr>
+        <tr>
+          <td><strong>Guía de migración</strong></td>
+          <td>Prescriptivo</td>
+          <td>¿Qué acciones concretas se deben tomar por segmento de cliente?</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="notice">
+      La barra superior muestra la fecha de última actualización de los datos. Verifica que el análisis refleje el período actual antes de tomar decisiones.
+    </div>
+  </div>
+</section>
+
+<!-- SECCIÓN 4: VISTA 1 -->
+<section id="v1" class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">4. Vista 1</div>
+    <h2>Factores de adopción</h2>
+    <p class="doc-p">
+      Esta vista responde la pregunta: ¿qué comportamientos en las primeras dos semanas distinguen a los técnicos que adoptan FMA de manera sostenida de los que abandonan? La respuesta orienta las estrategias de onboarding y activación temprana.
+    </p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Vista 1 completa: filtros, indicadores hero, tabla comparativa y gráfico de funcionalidades</div>
+      </div>
+    </div>
+
+    <div class="doc-h3">4.1 Filtros disponibles</div>
+    <p class="doc-p">Tres filtros permiten acotar el análisis. Todos los indicadores y gráficos se recalculan automáticamente al cambiar cualquier filtro.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Barra de filtros de Vista 1 con los tres selectores activos</div>
+      </div>
+    </div>
+
+    <table class="doc-table" style="max-width:740px;">
+      <thead>
+        <tr><th>Filtro</th><th>Efecto</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Industria</strong></td>
+          <td>Restringe el análisis a clientes de una industria específica (HVAC, Plomería, Electricidad, etc.). Los patrones de adopción difieren entre sectores.</td>
+        </tr>
+        <tr>
+          <td><strong>Tamaño del tenant</strong></td>
+          <td>Filtra por tamaño del cliente: Small, Medium, Large, Enterprise.</td>
+        </tr>
+        <tr>
+          <td><strong>Plataforma del dispositivo</strong></td>
+          <td>Filtra por sistema operativo (iOS / Android). El comportamiento de adopción puede diferir entre plataformas.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="doc-h3">4.2 Indicadores hero</div>
+    <p class="doc-p">Cuatro métricas globales en la parte superior ofrecen una lectura rápida del estado de adopción en la muestra filtrada.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Cuatro KPI cards: Adoptantes sostenidos, Abandonaron FMA, Tasa de retención, Técnicos en muestra</div>
+      </div>
+    </div>
+
+    <ul class="doc-ul">
+      <li><strong>Adoptantes sostenidos:</strong> técnicos con 15 o más días activos en los 60 días posteriores al período de observación (umbral de retención sostenida del modelo).</li>
+      <li><strong>Abandonaron FMA:</strong> técnicos que no alcanzaron ese umbral.</li>
+      <li><strong>Tasa de retención:</strong> proporción de adoptantes sostenidos sobre el total. Refleja la efectividad global de la migración.</li>
+      <li><strong>Técnicos en muestra:</strong> total de técnicos con datos suficientes para el análisis.</li>
+    </ul>
+
+    <div class="doc-h3">4.3 Recuadro de hallazgos clave</div>
+    <p class="doc-p">Un recuadro resumen sintetiza las diferencias más relevantes entre los dos grupos en lenguaje de negocio. Los valores se actualizan automáticamente según los filtros aplicados.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Recuadro de hallazgos clave con los valores comparativos del grupo adoptante vs. abandono</div>
+      </div>
+    </div>
+
+    <div class="doc-h3">4.4 Tabla comparativa — Perfil de las primeras 2 semanas en FMA</div>
+    <p class="doc-p">
+      Identifica qué variables diferencian estadísticamente a los técnicos que adoptan de los que abandonan. Se muestran los promedios de cada grupo y el p-valor correspondiente.
+    </p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Tabla comparativa con columnas: Variable, Adoptante, Abandono, p-valor, Significancia</div>
+      </div>
+    </div>
+
+    <ul class="doc-ul">
+      <li><strong>p-valor &lt; 0.05:</strong> diferencia estadísticamente significativa (marcada con ✓).</li>
+      <li>Variables numéricas: prueba t de Welch (robusta ante varianzas desiguales).</li>
+      <li>Variables categóricas: chi cuadrado (compara distribuciones de frecuencia).</li>
+      <li>El contador de factores significativos confirma el cumplimiento de R10 (mínimo 5 factores con p &lt; 0.05).</li>
+    </ul>
+
+    <div class="doc-h3">4.5 Gráfico de uso de funcionalidades en semana 1</div>
+    <p class="doc-p">Muestra el porcentaje de técnicos que utilizó cada funcionalidad en la primera semana. Las diferencias más grandes entre el grupo adoptante (azul) y el grupo abandono (gris) indican las funcionalidades críticas para priorizar en el onboarding.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Gráfico de barras horizontales: funcionalidades (Job Close Out, Time, Payment...) con barra azul (adoptante) vs. gris (abandono)</div>
+      </div>
+    </div>
+
+    <div class="doc-h3">4.6 Top-10 variables — Importancia SHAP global</div>
+    <p class="doc-p">
+      Ranking de las 10 variables que más influyen en las predicciones del modelo. La longitud de cada barra representa la importancia relativa de esa variable en la predicción. Las barras más largas indican los factores que más determinan si un técnico retiene o abandona FMA.
+    </p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Gráfico de barras horizontales con las 10 variables más importantes según SHAP, ordenadas de mayor a menor importancia</div>
+      </div>
+    </div>
+
+    <div class="notice">
+      <strong>Nota sobre causalidad:</strong> Los valores SHAP miden la asociación estadística entre cada variable y el riesgo de abandono. Una variable con alta importancia SHAP indica correlación con el resultado, no necesariamente una relación causal directa.
+    </div>
+  </div>
+</section>
+
+<!-- SECCIÓN 5: VISTA 2 -->
+<section id="v2">
+  <div class="wrap">
+    <div class="sec-tag">5. Vista 2</div>
+    <h2>Puntuación de riesgo</h2>
+    <p class="doc-p">
+      Esta vista identifica qué clientes requieren atención prioritaria. El modelo predice la probabilidad de retención de cada técnico y agrega el resultado a nivel de cliente (tenant). El cliente con el score más bajo encabeza la lista y es el que más urgentemente necesita intervención.
+    </p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Vista 2 completa: KPIs, tabla de clientes ordenada por riesgo y selector de cliente para detalle</div>
+      </div>
+    </div>
+
+    <div class="doc-h3">5.1 Filtros disponibles</div>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Barra de filtros de Vista 2 con los tres selectores</div>
+      </div>
+    </div>
+
+    <table class="doc-table" style="max-width:740px;">
+      <thead>
+        <tr><th>Filtro</th><th>Efecto</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Nivel de riesgo</strong></td>
+          <td>Muestra solo los clientes del nivel seleccionado (Crítico, Alto, Medio, Bajo). Permite concentrar la vista en los casos más urgentes.</td>
+        </tr>
+        <tr>
+          <td><strong>Estado de migración</strong></td>
+          <td>Filtra por porcentaje de técnicos ya migrados: Partial, Minimal, Majority, Complete.</td>
+        </tr>
+        <tr>
+          <td><strong>Industria</strong></td>
+          <td>Filtra por sector del cliente.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="doc-h3">5.2 Indicadores hero</div>
+    <p class="doc-p">Cuatro métricas reflejan el estado de riesgo general de la cartera filtrada.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Cuatro KPI cards: Clientes riesgo crítico (rojo), Clientes riesgo alto (ámbar), Total clientes (gris), AUC-ROC del modelo (verde)</div>
+      </div>
+    </div>
+
+    <ul class="doc-ul">
+      <li><strong>Clientes riesgo crítico:</strong> clientes con score agregado de retención inferior al 30%. La mayoría de sus técnicos tienen baja probabilidad de retener FMA.</li>
+      <li><strong>Clientes riesgo alto:</strong> clientes con score entre 30% y 50%.</li>
+      <li><strong>Total clientes en muestra:</strong> total de clientes con al menos un técnico nuevo en FMA.</li>
+      <li><strong>AUC-ROC del modelo (0.829):</strong> capacidad discriminativa del modelo. Se muestra un aviso de advertencia si este valor cae por debajo del umbral mínimo de 0.70.</li>
+    </ul>
+
+    <div class="doc-h3">5.3 Tabla de clientes ordenados por riesgo</div>
+    <p class="doc-p">Los clientes se ordenan de menor a mayor score de retención. Los que aparecen primero son los que requieren intervención más urgente.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Tabla de clientes con columnas: Cliente, Riesgo (badge de color), Score retención (barra), % en FMA, Técnicos, En riesgo crítico, Acción sugerida</div>
+      </div>
+    </div>
+
+    <table class="doc-table" style="max-width:740px;">
+      <thead>
+        <tr><th>Columna</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Cliente</strong></td><td>Identificador interno del cliente (ID). No se muestran nombres por política de privacidad.</td></tr>
+        <tr><td><strong>Riesgo</strong></td><td>Clasificación del nivel de riesgo en cuatro categorías (Crítico, Alto, Medio, Bajo).</td></tr>
+        <tr><td><strong>Score retención</strong></td><td>Probabilidad media de retención de los técnicos del cliente, representada con una barra de color: rojo indica mayor riesgo, verde indica menor riesgo.</td></tr>
+        <tr><td><strong>% en FMA</strong></td><td>Porcentaje de técnicos del cliente que ya utilizan FMA.</td></tr>
+        <tr><td><strong>Técnicos</strong></td><td>Número total de técnicos del cliente en la muestra.</td></tr>
+        <tr><td><strong>En riesgo crítico</strong></td><td>Número de técnicos individuales del cliente con score inferior al 30%.</td></tr>
+        <tr><td><strong>Acción sugerida</strong></td><td>Recomendación de acción según el nivel de riesgo del cliente.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Detalle de la columna "Score retención" mostrando la barra de color y el porcentaje para tres clientes de diferente nivel</div>
+      </div>
+    </div>
+
+    <table class="doc-table" style="max-width:540px;">
+      <thead>
+        <tr><th>Score</th><th>Nivel</th><th>Acción sugerida</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>&lt; 30%</td><td><strong>Crítico</strong></td><td>Contactar cliente inmediatamente</td></tr>
+        <tr><td>30-50%</td><td><strong>Alto</strong></td><td>Atención prioritaria en próximos 14 días</td></tr>
+        <tr><td>50-70%</td><td><strong>Medio</strong></td><td>Monitorear en ciclo bisemanal</td></tr>
+        <tr><td>&gt; 70%</td><td><strong>Bajo</strong></td><td>En buen camino — seguimiento estándar</td></tr>
+      </tbody>
+    </table>
+
+    <div class="doc-h3">5.4 Detalle de técnicos por cliente</div>
+    <p class="doc-p">Selecciona un cliente del menú desplegable para ver todos sus técnicos con su score individual y sus factores SHAP determinantes.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Selector "Seleccionar cliente" desplegado mostrando la lista de IDs de clientes disponibles</div>
+      </div>
+    </div>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Tabla de técnicos con columnas: Técnico ID, Prob. retención, Nivel riesgo, Factores SHAP top-3, Resultado real, Acción</div>
+      </div>
+    </div>
+
+    <p class="doc-p">
+      La columna <strong>Factores SHAP (top-3)</strong> indica las tres variables que más influyeron en el score de ese técnico específico. Esta información permite articular intervenciones concretas con el equipo de Customer Success, ya que cada técnico tiene un perfil de riesgo diferente.
+    </p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Detalle de la columna "Factores SHAP top-3" mostrando el factor principal en texto oscuro y los factores 2 y 3 en texto gris debajo</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECCIÓN 6: VISTA 3 -->
+<section id="v3" class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">6. Vista 3</div>
+    <h2>Guía de migración</h2>
+    <p class="doc-p">
+      Esta vista define qué acciones tomar con cada cliente según su situación actual de migración. La priorización basada en datos permite enfocar los recursos del equipo donde el impacto es mayor.
+    </p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Vista 3 completa: banner de modelo activo, cuatro segmentos de colores, tabla de priorización y tarjetas de recomendación</div>
+      </div>
+    </div>
+
+    <div class="doc-h3">6.1 Banner de estado del modelo</div>
+    <p class="doc-p">Un banner verde al inicio confirma que el modelo supera el umbral de calidad (AUC &ge; 0.70) y que las recomendaciones están respaldadas por el modelo predictivo. Si el AUC cae por debajo del umbral, el banner cambia a advertencia.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Banner verde: "Recomendaciones activadas · AUC = 0.829 &ge; 0.70"</div>
+      </div>
+    </div>
+
+    <div class="doc-h3">6.2 Indicadores de cartera</div>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Dos KPI cards: "Clientes en estado intermedio de migración" y "Umbral de inflexión social 40%"</div>
+      </div>
+    </div>
+
+    <ul class="doc-ul">
+      <li><strong>Clientes en estado intermedio:</strong> total de clientes con al menos un técnico nuevo en FMA activos en el proceso de migración.</li>
+      <li><strong>Umbral de inflexión social (40%):</strong> porcentaje de técnicos en FMA a partir del cual la adopción tiende a auto-sostenerse por efecto de red entre colegas.</li>
+    </ul>
+
+    <div class="doc-h3">6.3 Segmentos de acción</div>
+    <p class="doc-p">Cada cliente se clasifica en uno de cuatro segmentos según el porcentaje de sus técnicos que ya utilizan FMA. El número dentro de cada tarjeta indica la cantidad de clientes en ese segmento.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Cuatro tarjetas de segmento: Migrar con prioridad (rojo), Activar funcionalidades clave (naranja), Monitorear adopción (verde), En buen camino (azul)</div>
+      </div>
+    </div>
+
+    <table class="doc-table" style="max-width:740px;">
+      <thead>
+        <tr><th>Segmento</th><th>Criterio</th><th>Prioridad</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Migrar con prioridad</strong></td><td>&lt; 20% de técnicos en FMA</td><td>Máxima — intervención inmediata</td></tr>
+        <tr><td><strong>Activar funcionalidades clave</strong></td><td>20-39% en FMA</td><td>Alta — acelerar hasta superar el 40%</td></tr>
+        <tr><td><strong>Monitorear adopción</strong></td><td>40-69% en FMA</td><td>Media — mantener ritmo y recuperar rezagados</td></tr>
+        <tr><td><strong>En buen camino</strong></td><td>&ge; 70% en FMA</td><td>Estándar — seguimiento rutinario</td></tr>
+      </tbody>
+    </table>
+
+    <div class="doc-h3">6.4 Tabla de priorización por cliente</div>
+    <p class="doc-p">Los clientes se ordenan por score de riesgo dentro de cada segmento. La columna <strong>Retención real</strong> permite validar si el modelo está prediciendo correctamente comparando el score con el resultado observado en datos históricos.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Tabla de priorización con columnas: Cliente, Segmento (texto de color), % en FMA, Score agregado, Retención real</div>
+      </div>
+    </div>
+
+    <div class="doc-h3">6.5 Tarjetas de recomendación por segmento</div>
+    <p class="doc-p">Tres tarjetas detallan las acciones específicas recomendadas para los segmentos de mayor riesgo, con el respaldo evidencial del modelo.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Las tres tarjetas de recomendación (roja, naranja y verde) con sus acciones numeradas y el pie de respaldo evidencial</div>
+      </div>
+    </div>
+
+    <div class="cards" style="max-width:900px;margin-top:20px;">
+      <div class="card" style="border-top:3px solid #DC2626;">
+        <div class="card-badge" style="background:#FEF2F2;color:#DC2626;">S1</div>
+        <h3>Migrar con prioridad (&lt; 20% en FMA)</h3>
+        <ul class="doc-ul" style="margin-top:10px;">
+          <li>Priorizar las funcionalidades de mayor retención: Job Close Out y Uso Time son los factores SHAP dominantes en este segmento.</li>
+          <li>Coordinar con Customer Success: acompañamiento activo durante los primeros 30 días.</li>
+          <li>Evaluar viabilidad: clientes con menos de 5 técnicos activos en FMA pueden necesitar incentivos explícitos.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid #D97706;">
+        <div class="card-badge" style="background:#FFFBEB;color:#D97706;">S2</div>
+        <h3>Activar funcionalidades clave (20-39% en FMA)</h3>
+        <ul class="doc-ul" style="margin-top:10px;">
+          <li>Activar funcionalidades según el factor SHAP dominante de cada técnico (visible en Vista 2).</li>
+          <li>Superar el umbral del 40% en las próximas 4 semanas: ese es el punto de inflexión de auto-sostenimiento.</li>
+          <li>Seguimiento bisemanal del ratio de días activos: es el indicador adelantado más predictivo de retención.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid #059669;">
+        <div class="card-badge" style="background:#ECFDF5;color:#059669;">S3</div>
+        <h3>Monitorear y consolidar (&ge; 40% en FMA)</h3>
+        <ul class="doc-ul" style="margin-top:10px;">
+          <li>Mantener el ritmo de adopción: los cambios de versión en los primeros 60 días están asociados a mayor riesgo de abandono.</li>
+          <li>Recuperar técnicos en zona de riesgo: incluso en clientes con alta penetración pueden existir técnicos con score 30-50%.</li>
+          <li>Documentar como casos de éxito: sirven de referencia para los segmentos 1 y 2.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECCIÓN 7: ACTUALIZACIÓN -->
+<section id="actualizacion">
+  <div class="wrap">
+    <div class="sec-tag">7. Actualización de datos</div>
+    <h2>Ciclo bisemanal de actualización</h2>
+    <p class="doc-p">El análisis se actualiza ejecutando el pipeline cada 14 días. Este es el ciclo de actualización definido para mantener las predicciones relevantes.</p>
+
+    <div class="img-ph">
+      <div class="img-ph-icon">&#128247;</div>
+      <div class="img-ph-body">
+        <div class="img-ph-label">Captura pendiente</div>
+        <div class="img-ph-desc">Fecha de última actualización en la barra superior del tablero</div>
+      </div>
+    </div>
+
+    <div class="steps" style="max-width:740px;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Reemplazar los archivos fuente</div>
+          <div class="step-desc">Copia los nuevos CSVs exportados desde Snowflake a la carpeta <code>data/raw/</code>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Ejecutar el pipeline</div>
+          <div class="step-desc">Este paso regenera todos los archivos analíticos.</div>
+          <div class="code-block" style="margin-top:10px;">
+            <div><span class="cmd">python</span> <span class="arg">pipeline.py</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Recargar el tablero</div>
+          <div class="step-desc">Los nuevos datos se cargan automáticamente al recargar. Verifica la fecha de última actualización en la barra superior.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECCIÓN 8: FAQ -->
+<section id="faq" class="bg-white">
+  <div class="wrap">
+    <div class="sec-tag">8. Preguntas frecuentes</div>
+    <h2>Dudas comunes</h2>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Los datos se actualizan automáticamente?</div>
+      <div class="faq-a">No. Se actualizan ejecutando <code class="doc-inline-code">python pipeline.py</code> cada 14 días o bajo demanda con los datos más recientes exportados desde Snowflake. La fecha de última actualización aparece en el encabezado del tablero.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Por qué un técnico tiene score bajo si está usando FMA?</div>
+      <div class="faq-a">El score se calcula con base en el comportamiento de las primeras 2 semanas. Un técnico que inicia sesión pero usa pocas funcionalidades o con baja frecuencia puede tener score bajo porque el modelo detecta esos patrones como señal de riesgo.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Los nombres de los clientes son visibles?</div>
+      <div class="faq-a">No. Se utilizan únicamente identificadores internos (IDs) por política de privacidad. Los nombres de clientes y técnicos no están disponibles en el tablero.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Qué significa AUC-ROC?</div>
+      <div class="faq-a">El AUC-ROC mide la capacidad del modelo para distinguir entre técnicos que retienen y técnicos que abandonan FMA. Valores cercanos a 1 indican mayor precisión. El modelo actual tiene AUC = 0.829, que supera el umbral mínimo de calidad de 0.70.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Qué pasa si el modelo tiene AUC &lt; 0.70?</div>
+      <div class="faq-a">Se muestra una advertencia en la Vista 3. En ese caso las recomendaciones prescriptivas deben tomarse como orientativas hasta que el modelo se re-entrene con más datos.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Cómo se interpreta el factor SHAP de un técnico?</div>
+      <div class="faq-a">El factor SHAP es la variable que más influyó en el score de ese técnico específico. Por ejemplo, si el factor principal es "Ratio días activos", indica que la frecuencia de uso en la primera semana fue el elemento más determinante en su score. El análisis SHAP descompone la predicción individual en contribuciones de cada variable.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECCIÓN 9: GLOSARIO -->
+<section id="glosario">
+  <div class="wrap">
+    <div class="sec-tag">9. Glosario de términos</div>
+    <h2>Definiciones</h2>
+
+    <table class="doc-table" style="max-width:740px;">
+      <thead>
+        <tr><th>Término</th><th>Definición</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Adoptante sostenido</strong></td><td>Técnico que registró 15 o más días activos en los 60 días posteriores al período de observación.</td></tr>
+        <tr><td><strong>Abandono</strong></td><td>Técnico que no alcanzó el umbral de 15 días activos en 60 días.</td></tr>
+        <tr><td><strong>Score de retención</strong></td><td>Probabilidad de que un técnico retenga FMA según el modelo. Se expresa como porcentaje entre 0% y 100%.</td></tr>
+        <tr><td><strong>SHAP</strong></td><td>Método de interpretabilidad que cuantifica la contribución de cada variable al score del modelo. Permite identificar los factores determinantes por técnico.</td></tr>
+        <tr><td><strong>AUC-ROC</strong></td><td>Métrica de calidad del modelo. Mide su capacidad para distinguir correctamente entre técnicos que retienen y los que abandonan.</td></tr>
+        <tr><td><strong>Tenant</strong></td><td>Cliente de ServiceTitan (empresa contratista).</td></tr>
+        <tr><td><strong>Técnico</strong></td><td>Empleado del cliente que usa FMA en el campo.</td></tr>
+        <tr><td><strong>TMA</strong></td><td>Technician Mobile Application — aplicación anterior a FMA.</td></tr>
+        <tr><td><strong>FMA</strong></td><td>Field Mobile App — plataforma de migración objetivo.</td></tr>
+        <tr><td><strong>Pipeline</strong></td><td>Proceso automatizado que transforma los datos fuente en los indicadores del tablero.</td></tr>
+        <tr><td><strong>Umbral de inflexión social</strong></td><td>Punto a partir del 40% de técnicos en FMA en el que la adopción tiende a auto-sostenerse por efecto de red.</td></tr>
+        <tr><td><strong>Período de observación</strong></td><td>Las primeras 14 días de actividad de un técnico en FMA. Es la ventana usada por el modelo para generar el score.</td></tr>
+      </tbody>
+    </table>
+
+    <p style="font-size:13px;color:var(--faint);margin-top:24px;">
+      FMA Adoption Intelligence &nbsp;&middot;&nbsp; ServiceTitan &nbsp;&middot;&nbsp; Versión 1.0 &nbsp;&middot;&nbsp; Mayo 2026
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="inst-logos">
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-uniandes"><img src="../assets/logo-uniandes.png" alt="Uniandes"></div>
+        <div><div class="inst-name-w">UNIANDES</div><div class="inst-sub-w">Maestr&iacute;a MIAD</div></div>
+      </div>
+      <div class="inst-divider"></div>
+      <div class="inst-logo">
+        <div class="inst-mark inst-mark-st"><img src="../assets/logo-servicetitan.png" alt="ServiceTitan"></div>
+        <div><div class="inst-name-w">ServiceTitan</div><div class="inst-sub-w">Product, FMA</div></div>
+      </div>
+    </div>
+    <div>
+      <a href="https://github.com/mbayonal/fma-adoption-intelligence" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://fma-adoption-intelligence-4czccfxlxzkfdm6prmcns8.streamlit.app" target="_blank" rel="noopener">Prototipo</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
