@@ -68,6 +68,25 @@
   </div>
 </section>
 
+<!-- VIDEO DEMO -->
+<section>
+  <div class="wrap">
+    <div style="max-width:800px;margin:0 auto;">
+      <div class="sec-tag">Video explicativo</div>
+      <h2>Recorrido detallado del tablero</h2>
+      <p class="sec-desc">Demostración paso a paso del funcionamiento del reporte: las tres vistas analíticas, los filtros interactivos y la interpretación de los resultados.</p>
+      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--r);border:1px solid var(--border);background:#000;">
+        <iframe
+          src="https://www.youtube.com/embed/iDAnDfEw2So"
+          style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- GUÍA DE USO -->
 <section>
   <div class="wrap">
@@ -184,13 +203,13 @@
       </div>
       <p class="doc-p">
         Responde: ¿qué acción concreta debe tomar el PM con cada cliente?
-        Los 54 clientes de la muestra se distribuyen en cuatro segmentos según el porcentaje de sus técnicos activos en FMA. Cada segmento tiene acciones diferenciadas respaldadas por el modelo.
+        Los clientes de la muestra se distribuyen en cuatro segmentos según el porcentaje de sus técnicos activos en FMA. Cada segmento tiene acciones diferenciadas respaldadas por el modelo. El conteo exacto por segmento se calcula dinámicamente en el tablero a partir del archivo <code>tenant_scores.parquet</code> y se actualiza con los filtros aplicados.
       </p>
       <ul class="doc-ul">
-        <li><strong>Crítico (&lt;20% en FMA) — 7 clientes:</strong> intervención inmediata, acompañamiento activo primeros 30 días.</li>
-        <li><strong>A activar (20-39%) — 15 clientes:</strong> activar funcionalidades clave según SHAP dominante de cada técnico; objetivo: superar el umbral del 40% en 4 semanas.</li>
-        <li><strong>A monitorear (40-69%) — 19 clientes:</strong> mantener ritmo, recuperar técnicos rezagados con score 30-50%.</li>
-        <li><strong>En buen camino (&ge;70%) — 93 clientes:</strong> seguimiento estándar, sin tarjeta de intervención.</li>
+        <li><strong>Crítico (&lt;20% en FMA):</strong> intervención inmediata, acompañamiento activo primeros 30 días.</li>
+        <li><strong>A activar (20-39%):</strong> activar funcionalidades clave según SHAP dominante de cada técnico; objetivo: superar el umbral del 40% en 4 semanas.</li>
+        <li><strong>A monitorear (40-69%):</strong> mantener ritmo, recuperar técnicos rezagados con score 30-50%.</li>
+        <li><strong>En buen camino (&ge;70%):</strong> seguimiento estándar, sin tarjeta de intervención.</li>
       </ul>
       <figure class="sc-fig sc-missing">
         <img src="assets/screenshots/v3-segmentos.png"

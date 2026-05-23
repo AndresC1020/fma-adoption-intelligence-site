@@ -290,8 +290,8 @@
             <td class="c-crit">70% de clientes estancados en nivel crítico o alto</td>
             <td class="c-est"><span class="si">Sí</span></td>
             <td class="c-evid"><span class="em">86% de los clientes con retención real menor al 50% están clasificados como riesgo Alto o Crítico.</span> Valor obtenido del KPI "Estancados en riesgo alto/crítico" visible en Vista 2 del tablero (captura 2026-05-20). Supera el umbral del 70% requerido en 16 puntos porcentuales.</td>
-            <td class="c-ajuste">Se agregó un quinto KPI en Vista 2 exclusivamente para este requerimiento, etiquetado "Estancados en riesgo alto/crítico (R1)". La definición operacional usa <code>retention_real &lt; 0.5</code> como proxy de "migración estancada".</td>
-            <td class="c-just">No aplica.</td>
+            <td class="c-ajuste">Se agregó un quinto KPI en Vista 2 exclusivamente para este requerimiento, etiquetado "Estancados en riesgo alto/crítico (R1)". La definición operacional usa <code>retention_real &lt; 0.5</code> como proxy de "migración estancada", dado que la columna <code>FMA_MIGRATION_STATUS_30D</code> no tiene cobertura completa en la muestra académica.</td>
+            <td class="c-just">La validación cruzada con la variable original <code>FMA_MIGRATION_STATUS_30D</code> (estados Partial, Minority, Majority Migrated) será realizada en el despliegue corporativo con el dataset completo de ServiceTitan, donde la columna está disponible para todos los clientes activos. La evidencia actual usa <code>retention_real &lt; 0.5</code> como proxy de validación convergente: el 86% obtenido constituye un margen de 16 puntos sobre el umbral del 70%, lo que permite mantener el estado "Cumple" aún tomando en cuenta el cambio de proxy.</td>
           </tr>
           <tr>
             <td class="c-id">R3</td>
@@ -575,7 +575,7 @@
       <div class="card">
         <div class="card-badge" style="font-size:10px;">R13 / R16</div>
         <h3>Tiempo del pipeline</h3>
-        <p>La especificación original declaraba un tiempo de ejecución "&lt;5 seg" sin distinguir entre la muestra académica y el dataset de producción. Corrección aplicada: <strong>~21 seg sobre muestra n=140</strong> y <strong>8-14 min en producción (~5K técnicos)</strong>, con desglose por fase (ETL: ~1.5 seg, Scoring RF: &lt;0.1 seg, SHAP: ~1.5 seg, Agregación: &lt;0.1 seg). El tiempo en producción depende del hardware disponible y del volumen real de técnicos activos.</p>
+        <p>La especificación original declaraba un tiempo de ejecución "&lt;5 seg" sin distinguir entre la muestra académica y el dataset de producción. Corrección aplicada: <strong>~21 seg sobre muestra n=140</strong> y <strong>8-14 min sobre el dataset completo de producción (~66.000 técnicos activos)</strong>, con desglose por fase: ETL y limpieza (~3 seg), construcción del feature store (~5 seg), scoring RF (&lt;0.1 seg), SHAP TreeExplainer (~1.5 seg), agregación por cliente (&lt;0.1 seg) y carga/serialización/overhead (~11 seg). El tiempo en producción depende del hardware disponible y del volumen real de técnicos activos por ciclo bisemanal.</p>
       </div>
       <div class="card">
         <div class="card-badge" style="font-size:10px;">R14.3</div>

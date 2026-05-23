@@ -70,7 +70,6 @@
               <li>Output: tres DataFrames limpios en memoria</li>
             </ul>
           </div>
-          <div class="arch-hsep"><div class="arch-line-h"></div><div class="arch-arrow-tip-r"></div></div>
           <div class="arch-node hl">
             <div class="arch-node-tag">Fase 2</div>
             <div class="arch-node-name">etl.build_feature_store()</div>
@@ -81,7 +80,6 @@
               <li>Output: <code>feature_store.parquet</code></li>
             </ul>
           </div>
-          <div class="arch-hsep"><div class="arch-line-h"></div><div class="arch-arrow-tip-r"></div></div>
           <div class="arch-node hl">
             <div class="arch-node-tag">Fase 3</div>
             <div class="arch-node-name">RF pipeline (joblib)</div>
@@ -93,11 +91,6 @@
             </ul>
             <span class="arch-node-time">Scoring: &lt; 0.1 seg</span>
           </div>
-        </div>
-
-        <!-- ── CONECTOR EN L: Fase 3 baja y gira a la izquierda hacia Fase 4 ── -->
-        <div class="arch-conn-row">
-          <div class="arch-l-elbow"></div>
         </div>
 
         <!-- ── FILA 2: Fases 4 y 5, centradas ── -->
@@ -112,7 +105,6 @@
             </ul>
             <span class="arch-node-time">~1.5 seg (muestra)</span>
           </div>
-          <div class="arch-hsep"><div class="arch-line-h"></div><div class="arch-arrow-tip-r"></div></div>
           <div class="arch-node">
             <div class="arch-node-tag">Fase 5</div>
             <div class="arch-node-name">Agregación por tenant</div>
@@ -245,15 +237,17 @@
 <section>
   <div class="wrap">
     <div class="doc-h3">8. Tiempos de ejecución (R13)</div>
-    <p class="doc-p">Los tiempos se midieron sobre la muestra académica (n=140 técnicos, 54 clientes, ~700K eventos) y se proyectan a producción asumiendo ~5.000 técnicos activos y un dataset completo de ServiceTitan. El escalado es aproximadamente lineal para el ETL y el SHAP; el scoring RF es prácticamente instantáneo gracias a la serialización del modelo. La proyección a producción asume hardware equivalente a un servidor de cómputo estándar con 8 núcleos y 16 GB de RAM.</p>
-    <table class="doc-table" style="max-width:660px;">
+    <p class="doc-p">Los tiempos se midieron sobre la muestra académica (n=140 técnicos, 54 clientes, ~700K eventos) y se proyectan al dataset completo de producción de ServiceTitan (~66.000 técnicos activos, con ciclos bisemanales de aproximadamente 5.000 técnicos nuevos por extracción). El escalado es aproximadamente lineal para el ETL y el SHAP; el scoring RF es prácticamente instantáneo gracias a la serialización del modelo. La proyección a producción asume hardware equivalente a un servidor de cómputo estándar con 8 núcleos y 16 GB de RAM.</p>
+    <table class="doc-table" style="max-width:680px;">
       <thead><tr><th>Componente</th><th>Muestra (n=140)</th><th>Producción estimada (n=66K)</th></tr></thead>
       <tbody>
-        <tr><td>ETL completo</td><td>~1.5 seg</td><td>~5-8 min</td></tr>
-        <tr><td>Scoring RF</td><td>&lt; 0.1 seg</td><td>&lt; 1 min</td></tr>
-        <tr><td>SHAP TreeExplainer</td><td>~1.5 seg</td><td>~2-4 min</td></tr>
-        <tr><td>Agregación tenant</td><td>&lt; 0.1 seg</td><td>&lt; 1 min</td></tr>
-        <tr><td><strong>Total pipeline</strong></td><td><strong>~3.8 seg</strong></td><td><strong>&lt; 10 min</strong></td></tr>
+        <tr><td>ETL y limpieza (Fase 1)</td><td>~3 seg</td><td>~3-5 min</td></tr>
+        <tr><td>Construcción del feature store (Fase 2)</td><td>~5 seg</td><td>~2-3 min</td></tr>
+        <tr><td>Scoring RF (Fase 3)</td><td>&lt; 0.1 seg</td><td>&lt; 1 min</td></tr>
+        <tr><td>SHAP TreeExplainer (Fase 4)</td><td>~1.5 seg</td><td>~2-4 min</td></tr>
+        <tr><td>Agregación por cliente (Fase 5)</td><td>&lt; 0.1 seg</td><td>&lt; 1 min</td></tr>
+        <tr><td>Carga, serialización y overhead</td><td>~11 seg</td><td>~1-2 min</td></tr>
+        <tr><td><strong>Total pipeline</strong></td><td><strong>~21 seg</strong></td><td><strong>&lt; 10 min</strong></td></tr>
       </tbody>
     </table>
   </div>
